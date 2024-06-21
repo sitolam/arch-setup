@@ -713,6 +713,8 @@ your download speed may be affected." 8 70
     dialog --infobox "Updating pacman mirror list..." 3 50
     # Sort the 50 most recently synchronized HTTPS mirrors by download speed
     reflector --latest 50 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
+    # Enable parallel downloads
+    sed -i "s/#ParallelDownloads = 5/ParallelDownloads = 5/g" /etc/pacman.conf
   fi
 }
 
