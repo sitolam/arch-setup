@@ -1171,6 +1171,9 @@ EOF
   dialog --infobox "Enabling NetworkManager service..." 3 50
   arch-chroot /mnt systemctl enable NetworkManager.service &> /dev/null
 
+  dialog --infobox "Enabling sshd service..." 3 50
+  arch-chroot /mnt systemctl enable sshd.service &> /dev/null
+  
   if $bluetooth_enabled; then
     dialog --infobox "Enabling Bluetooth service..." 3 50
     arch-chroot /mnt systemctl enable bluetooth.service &> /dev/null
