@@ -783,6 +783,7 @@ system (e.g. wine, steam, etc)." 9 70
 use.\n\nGraphical environment:" 12 75 3 \
 "Desktop Environment" "Traditional complete graphical user interface" \
 "Window Manager" "Standalone minimal graphical user interface" \
+"Hyprland Hyde" "Hyprland with hyprdots forked from prasanthrangan" \
 "None" "Command-line only interface" 3>&1 1>&2 2>&3)
 
     if [ "$DESKTOP" = "Desktop Environment" ]; then
@@ -810,6 +811,8 @@ use.\n\nGraphical environment:" 12 75 3 \
 "i3" "Dynamic tiling window manager inspired by wmii" \
 "Openbox" "Highly configurable, stacking window manager" \
 "xmonad" "Dynamic tiling window manager configured in Haskell" 3>&1 1>&2 2>&3)
+    elif [ "$DESKTP" = "Hyprland Hyde"]; then
+    
       if [ $? -eq 0 ]; then
         break
       fi
