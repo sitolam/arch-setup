@@ -738,6 +738,7 @@ configure_install() {
         --yesno "Would you like to enable OS-prober?\n\n \
 It allows you to boot into other systems on your computer from the grub." 9 70
     if [ $? -eq 0 ]; then
+      os_prober=true
       DESKTOP_PACKAGES+=('os-prober')
     fi
   fi
@@ -1140,6 +1141,11 @@ EOF
   # Remove the 'quiet' parameter to have a verbose output during boot
   sed -i 's/\(GRUB_CMDLINE_LINUX_DEFAULT=\).*/\1\"\"/g' /mnt/etc/default/grub
 
+  # OS-prober
+  if $os_prober; then
+    sed -i 's/#GRUB_DISABLE_OS_PROBER=false/GRUB_DISABLE_OS_PROBER=false/g' /mnt/etc/default/grub
+  fi
+
   # Install GRUB to the target disk and generate the main configuration file
   if $UEFI; then
     arch-chroot /mnt grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB &> /dev/null
@@ -1173,7 +1179,7 @@ EOF
 
   dialog --infobox "Enabling sshd service..." 3 50
   arch-chroot /mnt systemctl enable sshd.service &> /dev/null
-  
+
   if $bluetooth_enabled; then
     dialog --infobox "Enabling Bluetooth service..." 3 50
     arch-chroot /mnt systemctl enable bluetooth.service &> /dev/null
