@@ -1087,6 +1087,7 @@ EOF
       
     else
       sed -i "s/#$LOCALE/$LOCALE/" /mnt/etc/locale.gen
+    fi
   fi
   echo "LANG=$LOCALE" > /mnt/etc/locale.conf
   if [ "$KEYMAP" != "us" ]; then
