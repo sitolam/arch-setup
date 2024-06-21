@@ -1222,7 +1222,7 @@ main() {
   check_connection
   set_keymap
   set_locale
-  set_timezone
+  #set_timezone
   set_hostname
   set_root_passwd
   create_user
