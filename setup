@@ -137,6 +137,7 @@ unsure, the default is 'us' (United States/QWERTY).\n\nKeymap:" 22 57 10 \
 "ru" "Russian" \
 "es" "Spanish" \
 "us" "United States" \
+"us-acentos" "International US" \
 "other" "View all available keymaps" 3>&1 1>&2 2>&3)
 
     if [ "$KEYMAP" = "other" ]; then
