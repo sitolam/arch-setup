@@ -175,6 +175,7 @@ your language and/or region is not listed. If you are unsure, the default is \
 "en_CA.UTF-8" "English (Canada)" \
 "en_US.UTF-8" "English (United States)" \
 "en_GB.UTF-8" "English (Great Britain)" \
+"en_BE.UTF-8" "English (Belgium)" \
 "fr_FR.UTF-8" "French (France)" \
 "de_DE.UTF-8" "German (Germany)" \
 "it_IT.UTF-8" "Italian (Italy)" \
@@ -1042,7 +1043,50 @@ configure_system() {
   # Set locale and keyboard layout if applicable and generate the locales
   sed -i "s/#en_US.UTF-8/en_US.UTF-8/" /mnt/etc/locale.gen
   if [ "$LOCALE" != "en_US.UTF-8" ]; then
-    sed -i "s/#$LOCALE/$LOCALE/" /mnt/etc/locale.gen
+    if [ "$LOCALE" == "en_BE.UTF-8" ]; then
+      sed -i "s/#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/g" /etc/locale.gen
+      sed -i "s/#en_US ISO-8859-1/en_US ISO-8859-1/g" /etc/locale.gen
+      sed -i "s/#nl_BE.UTF-8 UTF-8/nl_BE.UTF-8 UTF-8/g" /etc/locale.gen
+      sed -i "s/#nl_BE ISO-8859-15/nl_BE ISO-8859-15/g" /etc/locale.gen
+      sed -i "s/#nl_BE@euro ISO-8859-15/nl_BE@euro ISO-8859-15/g" /etc/locale.gen
+
+      cat << EOF >> /etc/profile
+      #locale settings
+      export LC_ALL="en_US.UTF-8"
+      export LANG=en_US.UTF-8
+      export LANGUAGE="en_US:en"
+      export LC_MESSAGES="en_US.UTF-8"
+      export LC_CTYPE="nl_BE@euro"
+      export LC_COLLATE="nl_BE@euro"
+      export LC_TIME="nl_BE"
+      export LC_NUMERIC="nl_BE"
+      export LC_MONETARY="nl_BE@euro"
+      export LC_PAPER="nl_BE"
+      export LC_TELEPHONE="nl_BE"
+      export LC_ADDRESS="nl_BE"
+      export LC_MEASUREMENT="nl_BE"
+      export LC_NAME="nl_BE"
+      EOF
+      cat > /etc/locale.conf << EOF
+      #locale settings
+      LC_ALL="en_US.UTF-8"
+      LANG="en_US.UTF-8"
+      LANGUAGE="en_US:en"
+      LC_MESSAGES="en_US.UTF-8"
+      LC_CTYPE="nl_BE@euro"
+      LC_COLLATE="nl_BE@euro"
+      LC_TIME="nl_BE"
+      LC_NUMERIC="nl_BE"
+      LC_MONETARY="nl_BE@euro"
+      LC_PAPER="nl_BE"
+      LC_TELEPHONE="nl_BE"
+      LC_ADDRESS="nl_BE"
+      LC_MEASUREMENT="nl_BE"
+      LC_NAME="nl_BE"
+      EOF
+      
+    else
+      sed -i "s/#$LOCALE/$LOCALE/" /mnt/etc/locale.gen
   fi
   echo "LANG=$LOCALE" > /mnt/etc/locale.conf
   if [ "$KEYMAP" != "us" ]; then
