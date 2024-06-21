@@ -58,7 +58,8 @@ check_connection() {
 
     # Connecting to the wifi
     iwctl --passphrase=$wifi_pass station $network_interface connect $network
-    
+  
+  done
 }
 
 # Check and disable any active mountpoints
