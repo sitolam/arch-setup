@@ -16,13 +16,43 @@ check_connection() {
   dialog --infobox "Checking internet connection..." 3 50
   # Check if a web page is available
   if ! nc -zw1 archlinux.org 443; then
-    dialog --title "Connect to the Internet" \
-      --msgbox "The installer was unable to detect a working internet \
-connection. The installation media supports wired network devices on \
-boot. Make sure the cable is plugged in. Wireless users should use the \
-'iwctl' command to connect to a wireless connection.\n\nOnce you have \
-a working internet connection, retry running the installer." 10 80
-    reset ; exit 1
+    dialog --infobox "No internet connection available"
+
+    # Getting network interface
+    interfaces=()
+    while IFS= read -r line; do
+        interfaces+=($(echo "$line" | awk '{print $1}'))
+    done < <(netstat -i | sed -n '3,$p')
+    count=0
+    for ((i=0; i<${#interfaces[@]}; i++)); do
+    ((count++))
+    interfaces_array=("${interfaces_array[@]}" "${count}" "${interfaces[i]}")
+    done
+    if [[ -z "$interfaces" ]]; then
+        echo "No network interfaces found."
+    else
+        network_interface=$(dialog --title "Network Interfaces" --menu "Select an interface:" 15 40 5 "${interfaces_array[@]}" 2>&1 >/dev/tty)
+        echo "Selected interface: ${interfaces[$selection-1]}"
+    fi
+
+    # Getting wifi network to connect
+    network=()
+    while IFS= read -r line; do
+        network+=($(echo "$line" | awk '{print $1}'))
+    done < <(netstat -i | sed -n '3,$p')
+    count=0
+    for ((i=0; i<${#network[@]}; i++)); do
+    ((count++))
+    network_array=("${network_array[@]}" "${count}" "${network[i]}")
+    done
+    if [[ -z "$network" ]]; then
+        echo "No network network found."
+    else
+        network=$(dialog --title "Network" --menu "Select a netowrk to connect:" 15 40 5 "${network_array[@]}" 2>&1 >/dev/tty)
+        echo "Selected interface: ${network[$selection-1]}"
+    fi
+
+    
   fi
 }
 
