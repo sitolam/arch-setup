@@ -528,6 +528,7 @@ create_partition_label() {
   # UEFI systems use GPT partitioning and BIOS/CSM systems use MBR
   if $UEFI; then
     parted -s "$DISK" mklabel gpt &> /dev/null
+
   else
     parted -s "$DISK" mklabel msdos &> /dev/null
   fi
@@ -724,6 +725,12 @@ configure_install() {
 
   if $UEFI; then
     DESKTOP_PACKAGES+=('efibootmgr')
+    dialog --title "Enable OS-prober" \
+        --yesno "Would you like to enable OS-prober?\n\n \
+It allows you to boot into other systems on your computer from the grub." 9 70
+    if [ $? -eq 0 ]; then
+      DESKTOP_PACKAGES+=('os-prober')
+    fi
   fi
 
   if [ "$PARTITION_LAYOUT" = "LVM" ]; then
