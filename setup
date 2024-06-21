@@ -15,7 +15,7 @@ ENTER.\nAlternate keys may also be used: '+', '-', and TAB." 7 70
 check_connection() {
   dialog --infobox "Checking internet connection..." 3 50
   # Check if a web page is available
-  if ! nc -zw1 archlinux.org 443; then
+  while ! nc -zw1 archlinux.org 443; then
     dialog --infobox "No internet connection available"
 
     # Getting network interface
@@ -36,6 +36,7 @@ check_connection() {
     fi
 
     # Getting wifi network to connect
+    iwctl station $interface scan
     network=()
     while IFS= read -r line; do
         network+=($(echo "$line" | awk '{print $1}'))
@@ -52,6 +53,11 @@ check_connection() {
         echo "Selected interface: ${network[$selection-1]}"
     fi
 
+    # Getting the wifi password
+    wifi_pass=${dialog --title "Wifi Password" --clear --stdout --insecure --nocancel --passwordbox "SSID: ${network}" 10 20}
+
+    # Connecting to the wifi
+    iwctl --passphrase=$wifi_pass station $network_interface connect $network
     
   fi
 }
