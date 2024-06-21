@@ -744,7 +744,7 @@ allows you to boot into other systems on your computer from the grub." 9 70
   fi
 
   kernel=$(dialog --title "Set the kernel type" --nocancel \
-    --default-item "linux-zen" --menu "Select the kernel type \ 
+    --default-item "linux-zen" --menu "Select the kernel type \
 that you want. If you are unsure, the default is 'linux-zen' (Zen Kernel).\n\nKernel:" 15 57 10 \
 "linux" "Stable" \
 "linux-lts" "Longterm" \
