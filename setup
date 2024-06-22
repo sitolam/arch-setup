@@ -1031,7 +1031,6 @@ installed for you." 7 70
         "parallels") DESKTOP_PACKAGES+=('xf86-video-vesa') ;;
         *) DESKTOP_PACKAGES+=('xf86-video-fbdev') ;;
       esac
-    fi
   fi
 }
 
