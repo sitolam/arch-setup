@@ -1045,6 +1045,7 @@ ${BASE_ESSENTIALS[*]} ${DESKTOP_PACKAGES[*]}\n\nInstall Arch Linux?" 0 0
     if [ $? -eq 0 ]; then
       clear
       pacstrap /mnt "${BASE_PACKAGES[@]}" "${BASE_ESSENTIALS[@]}" "${DESKTOP_PACKAGES[@]}"
+      sleep 3
       if [ $? -eq 0 ]; then
         installed=true
       else
