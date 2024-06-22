@@ -1229,7 +1229,7 @@ EOF
     fi
   fi
 
-  if [ "$GUI" == "prasanthrangan"]; then
+  if [ "$GUI" == "prasanthrangan" ]; then
     dialog --infobox "Starting the installation of prasanthrangan Hyde dot files"
     sleep 1
 
