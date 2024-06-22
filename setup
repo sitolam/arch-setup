@@ -937,7 +937,7 @@ you selected will be installed." 8 60
       fi
     fi
 
-    if [ $GUI == ""
+    if [ $GUI == "" ]
     dialog --title "Install a Display Manager" \
       --yesno "Would you like to install a graphical login manager?\n\nIf you \
 select no, 'xinit' will be installed so you can manually start Xorg with the\
@@ -1114,7 +1114,7 @@ LC_MESSAGES="en_US.UTF-8"
 LC_CTYPE="nl_BE@euro"
 LC_COLLATE="nl_BE@euro"
 LC_TIME="nl_BE"
-LC_NUMERIC="nl_BE"
+LC_NUMERIC="nl_BE"/
 LC_MONETARY="nl_BE@euro"
 LC_PAPER="nl_BE"
 LC_TELEPHONE="nl_BE"
@@ -1340,7 +1340,6 @@ main() {
   configure_install
   install_base
   configure_system
-  hyde_install
   reboot_system
 }
 
