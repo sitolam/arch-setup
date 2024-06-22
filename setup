@@ -1033,35 +1033,35 @@ driver.\n\nGraphics driver:" 17 75 3 \
         esac
       fi
     fi
-  }
+  fi
+}
 
-  install_base() {
-    while true; do
-      dialog --title "Installation Summary" \
-        --yesno "The base system is ready to be installed on $DISK.\nThe \
-  following packages will be installed:\n\n${BASE_PACKAGES[*]} \
-  ${BASE_ESSENTIALS[*]} ${DESKTOP_PACKAGES[*]}\n\nInstall Arch Linux?" 0 0
+install_base() {
+  while true; do
+    dialog --title "Installation Summary" \
+      --yesno "The base system is ready to be installed on $DISK.\nThe \
+following packages will be installed:\n\n${BASE_PACKAGES[*]} \
+${BASE_ESSENTIALS[*]} ${DESKTOP_PACKAGES[*]}\n\nInstall Arch Linux?" 0 0
+    if [ $? -eq 0 ]; then
+      clear
+      pacstrap /mnt "${BASE_PACKAGES[@]}" "${BASE_ESSENTIALS[@]}" "${DESKTOP_PACKAGES[@]}"
       if [ $? -eq 0 ]; then
-        clear
-        pacstrap /mnt "${BASE_PACKAGES[@]}" "${BASE_ESSENTIALS[@]}" "${DESKTOP_PACKAGES[@]}"
-        if [ $? -eq 0 ]; then
-          installed=true
-        else
-          dialog --title "ERROR: Install Failed" \
-            --msgbox "Arch Linux failed to install on $DISK.\n\nThe installer \
-encountered an error while executing pacstrap." 7 65
-          reset ; exit 1
-        fi
-        break
+        installed=true
       else
-        dialog --title "Cancel Installation" \
-          --yesno "Are you sure you want to exit to the main menu?" 5 55
-        if [ $? -eq 0 ]; then
-          main_menu
-        fi
+        dialog --title "ERROR: Install Failed" \
+          --msgbox "Arch Linux failed to install on $DISK.\n\nThe installer \
+encountered an error while executing pacstrap." 7 65
+        reset ; exit 1
+      fi
+      break
+    else
+      dialog --title "Cancel Installation" \
+        --yesno "Are you sure you want to exit to the main menu?" 5 55
+      if [ $? -eq 0 ]; then
+        main_menu
       fi
     fi
-  done
+done
 }
 
 # Apply the user's system settings
