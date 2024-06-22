@@ -909,7 +909,7 @@ applications that integrate well with the Xfce desktop." 8 60
     if [ "$GUI" != "GNOME" ]; then
       if [ "$GUI" = "KDE Plasma" ]; then
         DESKTOP_PACKAGES+=('plasma-nm')
-      elif [ "$DESKTOP" != "HyDE"]
+      elif [ "$DESKTOP" != "HyDE"]; then
         DESKTOP_PACKAGES+=('network-manager-applet' 'gnome-keyring')
       fi
     fi
