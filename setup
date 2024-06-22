@@ -828,7 +828,7 @@ use.\n\nGraphical environment:" 12 75 3 \
     fi
   done
 
-  if [ "$DESKTOP" != "None" ]; then
+  if [ "$DESKTOP" != "None" ] && [ "$DESKTOP" != "HyDE" ]; then
     DESKTOP_PACKAGES+=("${DESKTOP_DEFAULTS[@]}")
     case "$GUI" in
       "Budgie") DESKTOP_PACKAGES+=('budgie-desktop' 'gnome-control-center')
