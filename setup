@@ -783,7 +783,7 @@ system (e.g. wine, steam, etc)." 9 70
 use.\n\nGraphical environment:" 12 75 3 \
 "Desktop Environment" "Traditional complete graphical user interface" \
 "Window Manager" "Standalone minimal graphical user interface" \
-"Hyprland Hyde" "Hyprland with hyprdots forked from prasanthrangan" \
+"Hyprland Hyde" "Hyprland with hyprdots from prasanthrangan" \
 "None" "Command-line only interface" 3>&1 1>&2 2>&3)
 
     if [ "$DESKTOP" = "Desktop Environment" ]; then
@@ -811,8 +811,15 @@ use.\n\nGraphical environment:" 12 75 3 \
 "i3" "Dynamic tiling window manager inspired by wmii" \
 "Openbox" "Highly configurable, stacking window manager" \
 "xmonad" "Dynamic tiling window manager configured in Haskell" 3>&1 1>&2 2>&3)
-    elif [ "$DESKTP" = "Hyprland Hyde"]; then
-    
+      if [ $? -eq 0 ]; then
+        break
+      fi
+    elif [ "$DESKTOP" = "Hyprland Hyde"]; then
+      GUI=$(dialog --title "Hypdrots version" \
+        --cancel-label "Back" \
+        --menu "Select a Hyprland version to install:" 13 75 6 \
+"prasanthrangan" "The original Hyde dots files by prasanthrangan" \
+"sitolam" "The forked version of Hyde dots files by sitolam" 3>&1 1>&2 2>&3)
       if [ $? -eq 0 ]; then
         break
       fi
@@ -1218,6 +1225,17 @@ EOF
       arch-chroot /mnt systemctl enable vmware-vmblock-fuse.service &> /dev/null
     fi
   fi
+
+  if [ "$GUI" == "prasanthrangan"]; then
+    dialog --infobox "Starting the installation of prasanthrangan Hyde dot files"
+    sleep 1
+
+    dialog --infobox "Cloning the repository"
+    git clone --depth 1 https://github.com/prasanthrangan/hyprdots /mnt/home/"$USER_NAME"/HyDE &> /dev/null
+
+    dialog --infobox "Starting the installation of the theme"
+    arch-chroot /mnt sudo -u $USER_NAME /mnt/home/"$USER_NAME"/HyDE/Scripts/install.sh
+    
 }
 
 # System power menu
@@ -1322,6 +1340,7 @@ main() {
   configure_install
   install_base
   configure_system
+  hyde_install
   reboot_system
 }
 
