@@ -814,7 +814,7 @@ use.\n\nGraphical environment:" 12 75 3 \
       if [ $? -eq 0 ]; then
         break
       fi
-    elif [ "$DESKTOP" = "HyDE"]; then
+    elif [ "$DESKTOP" = "HyDE" ]; then
       GUI=$(dialog --title "Hypdrots version" \
         --cancel-label "Back" \
         --menu "Select a Hyprland version to install:" 13 75 6 \
