@@ -783,13 +783,13 @@ system (e.g. wine, steam, etc)." 9 70
 use.\n\nGraphical environment:" 12 75 3 \
 "Desktop Environment" "Traditional complete graphical user interface" \
 "Window Manager" "Standalone minimal graphical user interface" \
-"Hyprland Hyde" "Hyprland with hyprdots from prasanthrangan" \
+"HyDE" "Hyprland with hyprdots from prasanthrangan" \
 "None" "Command-line only interface" 3>&1 1>&2 2>&3)
 
     if [ "$DESKTOP" = "Desktop Environment" ]; then
       GUI=$(dialog --title "Select a Desktop Environment" \
         --cancel-label "Back" \
-        --menu "Select a desktop environment to install:" 15 65 8 \
+        --menu "Select a desktop environment to install:" 20 65 8 \
 "Budgie" "Modern GNOME based desktop" \
 "Cinnamon" "Traditional desktop experience" \
 "GNOME" "Modern simplicity focused desktop" \
@@ -814,7 +814,7 @@ use.\n\nGraphical environment:" 12 75 3 \
       if [ $? -eq 0 ]; then
         break
       fi
-    elif [ "$DESKTOP" = "Hyprland Hyde"]; then
+    elif [ "$DESKTOP" = "HyDE"]; then
       GUI=$(dialog --title "Hypdrots version" \
         --cancel-label "Back" \
         --menu "Select a Hyprland version to install:" 13 75 6 \
@@ -937,6 +937,7 @@ you selected will be installed." 8 60
       fi
     fi
 
+    if [ $GUI == ""
     dialog --title "Install a Display Manager" \
       --yesno "Would you like to install a graphical login manager?\n\nIf you \
 select no, 'xinit' will be installed so you can manually start Xorg with the\
