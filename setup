@@ -1235,7 +1235,7 @@ EOF
 
     dialog --infobox "Starting the installation of the theme"
     arch-chroot /mnt sudo -u $USER_NAME /mnt/home/"$USER_NAME"/HyDE/Scripts/install.sh
-    
+  fi
 }
 
 # System power menu
