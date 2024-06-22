@@ -937,24 +937,31 @@ you selected will be installed." 8 60
       fi
     fi
 
-    if [ $GUI == "" ]
-    dialog --title "Install a Display Manager" \
-      --yesno "Would you like to install a graphical login manager?\n\nIf you \
+    if [ $GUI != "prasanthrangan" ]; then    
+      dialog --title "Install a Display Manager" \
+        --yesno "Would you like to install a graphical login manager?\n\nIf you \
 select no, 'xinit' will be installed so you can manually start Xorg with the\
 'startx' command." 8 60
-    if [ $? -eq 0 ]; then
-      DM=$(dialog --title "Install a Display Manager" \
-          --menu "Select a display manager to install:" 10 50 3 \
+      if [ $? -eq 0 ]; then
+        DM=$(dialog --title "Install a Display Manager" \
+            --menu "Select a display manager to install:" 10 50 3 \
 "gdm" "GNOME Display Manager" \
 "lightdm" "Lightweight Display Manager" \
 "sddm" "Simple Desktop Display Manager" 3>&1 1>&2 2>&3)
-      if [ $? -eq 0 ]; then
-        dm_enabled=true
-        case "$DM" in
-          "gdm") DESKTOP_PACKAGES+=('gdm') ;;
-          "lightdm") DESKTOP_PACKAGES+=('lightdm' 'lightdm-gtk-greeter' 'lightdm-gtk-greeter-settings') ;;
-          "sddm") DESKTOP_PACKAGES+=('sddm') ;;
-        esac
+        if [ $? -eq 0 ]; then
+          dm_enabled=true
+          case "$DM" in
+            "gdm") DESKTOP_PACKAGES+=('gdm') ;;
+            "lightdm") DESKTOP_PACKAGES+=('lightdm' 'lightdm-gtk-greeter' 'lightdm-gtk-greeter-settings') ;;
+            "sddm") DESKTOP_PACKAGES+=('sddm') ;;
+          esac
+        else
+          DESKTOP_PACKAGES+=('xorg-xinit')
+          dialog --title "xinit" \
+            --msgbox "No display manager selected. Installing 'xorg-xinit'. The \
+installer will create a xinitrc file for you.\n\nYou will need to use the \
+'startx' command to start the graphical environment once you login." 9 57
+        fi
       else
         DESKTOP_PACKAGES+=('xorg-xinit')
         dialog --title "xinit" \
@@ -962,50 +969,43 @@ select no, 'xinit' will be installed so you can manually start Xorg with the\
 installer will create a xinitrc file for you.\n\nYou will need to use the \
 'startx' command to start the graphical environment once you login." 9 57
       fi
-    else
-      DESKTOP_PACKAGES+=('xorg-xinit')
-      dialog --title "xinit" \
-        --msgbox "No display manager selected. Installing 'xorg-xinit'. The \
-installer will create a xinitrc file for you.\n\nYou will need to use the \
-'startx' command to start the graphical environment once you login." 9 57
-    fi
 
-    # Intel/AMD/NVIDIA drivers are not installed on virtual machines
-    if [ "$hypervisor" = "none" ]; then
-      if lspci | grep "VGA" | grep -iq "Intel"; then
-        DESKTOP_PACKAGES+=('xf86-video-intel')
-      fi
+      # Intel/AMD/NVIDIA drivers are not installed on virtual machines
+      if [ "$hypervisor" = "none" ]; then
+        if lspci | grep "VGA" | grep -iq "Intel"; then
+          DESKTOP_PACKAGES+=('xf86-video-intel')
+        fi
 
-      if lspci | grep "VGA" | grep -iq "NVIDIA"; then
-        gpu_driver=$(dialog --title "Install Graphics Driver" --no-cancel \
-          --menu "The installer has detected an NVIDIA graphics card on your \
+        if lspci | grep "VGA" | grep -iq "NVIDIA"; then
+          gpu_driver=$(dialog --title "Install Graphics Driver" --no-cancel \
+            --menu "The installer has detected an NVIDIA graphics card on your \
 system.\n\nYou may choose to install either the open-source or proprietary \
 driver. If you are unsure, the proprietary driver usually offers the best \
 performance.\n\nGraphics driver:" 16 70 3 \
 "NVIDIA" "Proprietary NVIDIA driver" \
 "Nouveau" "Open-source Nouveau driver" \
 "None" "-" 3>&1 1>&2 2>&3)
-        if [ "$gpu_driver" = "NVIDIA" ]; then
-          # Get only the GPU PCI device ID
-          gpu_pci_id=$(lspci -nn  | grep -ioP 'VGA.*NVIDIA.*\[\K[\w:]+' | sed 's/.*://')
-          # Automatically install the correct driver based on the PCI ID data
-          if grep -Fq "$gpu_pci_id" "$DIR"/etc/nvidia_390_pci_ids; then
-            DESKTOP_PACKAGES+=('nvidia-390xx' 'nvidia-390xx-utils' 'nvidia-390xx-settings')
-          elif grep -Fq "$gpu_pci_id" "$DIR"/etc/nvidia_340_pci_ids; then
-            # Support for nvidia-340xx has been dropped, use nouveau
-            dialog --title "Install Graphics Driver" \
-              --msgbox "Proprietary driver support has ended for your graphics \
+          if [ "$gpu_driver" = "NVIDIA" ]; then
+            # Get only the GPU PCI device ID
+            gpu_pci_id=$(lspci -nn  | grep -ioP 'VGA.*NVIDIA.*\[\K[\w:]+' | sed 's/.*://')
+            # Automatically install the correct driver based on the PCI ID data
+            if grep -Fq "$gpu_pci_id" "$DIR"/etc/nvidia_390_pci_ids; then
+              DESKTOP_PACKAGES+=('nvidia-390xx' 'nvidia-390xx-utils' 'nvidia-390xx-settings')
+            elif grep -Fq "$gpu_pci_id" "$DIR"/etc/nvidia_340_pci_ids; then
+              # Support for nvidia-340xx has been dropped, use nouveau
+              dialog --title "Install Graphics Driver" \
+                --msgbox "Proprietary driver support has ended for your graphics \
 card.\n\nThe open-source Nouveau driver will be installed." 7 65
-            DESKTOP_PACKAGES+=('xf86-video-nouveau' 'mesa')
+              DESKTOP_PACKAGES+=('xf86-video-nouveau' 'mesa')
+            else
+              DESKTOP_PACKAGES+=('nvidia' 'nvidia-utils' 'nvidia-settings')
+            fi
           else
-            DESKTOP_PACKAGES+=('nvidia' 'nvidia-utils' 'nvidia-settings')
+            DESKTOP_PACKAGES+=('xf86-video-nouveau' 'mesa')
           fi
-        else
-          DESKTOP_PACKAGES+=('xf86-video-nouveau' 'mesa')
-        fi
-      elif lspci | grep "VGA" | grep -q "ATI\|AMD"; then
-        gpu_driver=$(dialog --title "Install Graphics Driver" --no-cancel \
-          --menu "The installer has detected an ATI/AMD graphics card on your \
+        elif lspci | grep "VGA" | grep -q "ATI\|AMD"; then
+          gpu_driver=$(dialog --title "Install Graphics Driver" --no-cancel \
+            --menu "The installer has detected an ATI/AMD graphics card on your \
 system.\nThe appropriate driver to install depends on how modern your GPU \
 is.\n\nIf you are unsure, the ATI driver is generally more stable and \
 supports the majority of ATI/AMD GPUs. If you have one of the latest AMD GPUs \
@@ -1014,50 +1014,51 @@ driver.\n\nGraphics driver:" 17 75 3 \
 "ATI" "Open-source ATI/AMD Radeon driver" \
 "AMDGPU" "Open-source driver for the latest AMD GPUs" \
 "None" "-" 3>&1 1>&2 2>&3)
-        if [ "$gpu_driver" = "ATI" ]; then
-          DESKTOP_PACKAGES+=('xf86-video-ati' 'mesa')
-        else
-          DESKTOP_PACKAGES+=('xf86-video-amdgpu' 'mesa')
+          if [ "$gpu_driver" = "ATI" ]; then
+            DESKTOP_PACKAGES+=('xf86-video-ati' 'mesa')
+          else
+            DESKTOP_PACKAGES+=('xf86-video-amdgpu' 'mesa')
+          fi
         fi
-      fi
-    else
-      dialog --title "Virtual Machine Detected" \
-        --msgbox "The installer has detected a virtualized environment: \
-$hypervisor\n\nAny required drivers or utilities will be \
-installed for you." 7 70
-      case "$hypervisor" in
-        "vmware") DESKTOP_PACKAGES+=('open-vm-tools' 'xf86-video-vmware' 'xf86-input-vmmouse' 'mesa' 'gtkmm' 'gtkmm3') ;;
-        "oracle") DESKTOP_PACKAGES+=('virtualbox-guest-utils' 'virtualbox-guest-dkms') ;;
-        "parallels") DESKTOP_PACKAGES+=('xf86-video-vesa') ;;
-        *) DESKTOP_PACKAGES+=('xf86-video-fbdev') ;;
-      esac
-    fi
-  fi
-}
-
-install_base() {
-  while true; do
-    dialog --title "Installation Summary" \
-      --yesno "The base system is ready to be installed on $DISK.\nThe \
-following packages will be installed:\n\n${BASE_PACKAGES[*]} \
-${BASE_ESSENTIALS[*]} ${DESKTOP_PACKAGES[*]}\n\nInstall Arch Linux?" 0 0
-    if [ $? -eq 0 ]; then
-      clear
-      pacstrap /mnt "${BASE_PACKAGES[@]}" "${BASE_ESSENTIALS[@]}" "${DESKTOP_PACKAGES[@]}"
-      if [ $? -eq 0 ]; then
-        installed=true
       else
-        dialog --title "ERROR: Install Failed" \
-          --msgbox "Arch Linux failed to install on $DISK.\n\nThe installer \
-encountered an error while executing pacstrap." 7 65
-        reset ; exit 1
+        dialog --title "Virtual Machine Detected" \
+          --msgbox "The installer has detected a virtualized environment: \
+  $hypervisor\n\nAny required drivers or utilities will be \
+  installed for you." 7 70
+        case "$hypervisor" in
+          "vmware") DESKTOP_PACKAGES+=('open-vm-tools' 'xf86-video-vmware' 'xf86-input-vmmouse' 'mesa' 'gtkmm' 'gtkmm3') ;;
+          "oracle") DESKTOP_PACKAGES+=('virtualbox-guest-utils' 'virtualbox-guest-dkms') ;;
+          "parallels") DESKTOP_PACKAGES+=('xf86-video-vesa') ;;
+          *) DESKTOP_PACKAGES+=('xf86-video-fbdev') ;;
+        esac
       fi
-      break
-    else
-      dialog --title "Cancel Installation" \
-        --yesno "Are you sure you want to exit to the main menu?" 5 55
+    fi
+  }
+
+  install_base() {
+    while true; do
+      dialog --title "Installation Summary" \
+        --yesno "The base system is ready to be installed on $DISK.\nThe \
+  following packages will be installed:\n\n${BASE_PACKAGES[*]} \
+  ${BASE_ESSENTIALS[*]} ${DESKTOP_PACKAGES[*]}\n\nInstall Arch Linux?" 0 0
       if [ $? -eq 0 ]; then
-        main_menu
+        clear
+        pacstrap /mnt "${BASE_PACKAGES[@]}" "${BASE_ESSENTIALS[@]}" "${DESKTOP_PACKAGES[@]}"
+        if [ $? -eq 0 ]; then
+          installed=true
+        else
+          dialog --title "ERROR: Install Failed" \
+            --msgbox "Arch Linux failed to install on $DISK.\n\nThe installer \
+encountered an error while executing pacstrap." 7 65
+          reset ; exit 1
+        fi
+        break
+      else
+        dialog --title "Cancel Installation" \
+          --yesno "Are you sure you want to exit to the main menu?" 5 55
+        if [ $? -eq 0 ]; then
+          main_menu
+        fi
       fi
     fi
   done
