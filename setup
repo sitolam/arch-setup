@@ -780,7 +780,7 @@ system (e.g. wine, steam, etc)." 9 70
   while true; do
     DESKTOP=$(dialog --title "Choose your Graphical Environment" --no-cancel \
       --menu "Select the style of graphical environment you wish to \
-use.\n\nGraphical environment:" 12 75 3 \
+use.\n\nGraphical environment:" 15 75 3 \
 "Desktop Environment" "Traditional complete graphical user interface" \
 "Window Manager" "Standalone minimal graphical user interface" \
 "HyDE" "Hyprland with hyprdots from prasanthrangan" \
