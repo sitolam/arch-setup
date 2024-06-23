@@ -31,11 +31,11 @@ check_connection() {
         echo "No network interfaces found."
     else
         network_interface=$(dialog --title "Network Interfaces" --menu "Select an interface:" 15 40 5 "${interfaces_array[@]}" 2>&1 >/dev/tty)
-        echo "Selected interface: ${interfaces[$selection-1]}"
+        interface=$interfaces[$network_interface]}"
     fi
 
     # Getting wifi network to connect
-    iwctl station $network_interface scan
+    iwctl station $interface scan
     networks=($(iwctl station $interface get-networks | cut -d' ' -f6 | sed -n '5,$p' | tr -d '\n' ; iwctl station $interface get-networks | cut -d' ' -f7 | sed -n '5,$p'))
     count=0
     for ((i=0; i<${#networks[@]}; i++)); do
