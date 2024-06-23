@@ -42,7 +42,7 @@ check_connection() {
     fi
 
     # Getting the wifi password
-    wifi_pass=${dialog --title "Wifi Password" --clear --stdout --insecure --nocancel --passwordbox "SSID: ${network}" 10 20}
+    wifi_pass=$(dialog --title "Wifi Password" --clear --stdout --insecure --nocancel --passwordbox "SSID: ${network}" 10 20)
 
     # Connecting to the wifi
     iwctl --passphrase="$wifi_pass" station $interface connect $network
