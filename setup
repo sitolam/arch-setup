@@ -14,6 +14,7 @@ ENTER.\nAlternate keys may also be used: '+', '-', and TAB." 7 70
 # Proceed with installation only if there is an internet connection
 check_connection() {
   dialog --infobox "Checking internet connection..." 3 50
+  sleep 2
   # Check if a web page is available
   while ! ping -c1 google.com &>/dev/null; do
     dialog --infobox "No internet connection available" 3 50
