@@ -17,6 +17,7 @@ check_connection() {
   # Check if a web page is available
   while [ curl --output /dev/null --silent --head --fail "http://google.com" ]; do
     dialog --infobox "No internet connection available"
+    sleep 10
 
     # Getting network interface
     interfaces=()
