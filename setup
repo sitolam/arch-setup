@@ -17,9 +17,7 @@ check_connection() {
   sleep 10
   # Check if a web page is available
   while ! ping -c1 google.com &>/dev/null; do
-    dialog --infobox "No internet connection available"
-    sleep 10
-
+    dialog --infobox "No internet connection available" 3 50
     # Getting network interface
     interfaces=()
     while IFS= read -r line; do
@@ -39,7 +37,7 @@ check_connection() {
 
     # Getting wifi network to connect
     iwctl station $interface scan
-    networks=($(iwctl station $interface get-networks | cut-d' ' -f6 | sed -n '5,$p' | tr -d '\n' ; iwctl station $interface get-networks | cut -d' ' -f7 | sed -n '5,$p'))
+    networks=($(iwctl station $interface get-networks | cut -d' ' -f6 | sed -n '5,$p' | tr -d '\n' ; iwctl station $interface get-networks | cut -d' ' -f7 | sed -n '5,$p'))
     count=0
     for ((i=0; i<${#network[@]}; i++)); do
     ((count++))
@@ -57,7 +55,8 @@ check_connection() {
 
     # Connecting to the wifi
     iwctl --passphrase="$wifi_pass" station $network_interface connect $network
-  
+
+    sleep 5
   done
 }
 
