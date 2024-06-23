@@ -16,7 +16,7 @@ check_connection() {
   dialog --infobox "Checking internet connection..." 3 50
   sleep 10
   # Check if a web page is available
-  if [ curl --output /dev/null --silent --head --fail "http://google.com" ]; then
+  while ! ping -c1 google.com &>/dev/null; do
     dialog --infobox "No internet connection available"
     sleep 10
 
@@ -58,7 +58,7 @@ check_connection() {
     # Connecting to the wifi
     iwctl --passphrase="$wifi_pass" station $network_interface connect $network
   
-  fi
+  done
 }
 
 # Check and disable any active mountpoints
