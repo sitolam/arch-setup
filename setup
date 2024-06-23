@@ -14,6 +14,7 @@ ENTER.\nAlternate keys may also be used: '+', '-', and TAB." 7 70
 # Proceed with installation only if there is an internet connection
 check_connection() {
   dialog --infobox "Checking internet connection..." 3 50
+  sleep 10
   # Check if a web page is available
   while [ curl --output /dev/null --silent --head --fail "http://google.com" ]; do
     dialog --infobox "No internet connection available"
