@@ -21,8 +21,8 @@ check_connection() {
     # Getting network interface
     interfaces=()
     while IFS= read -r line; do
-        interfaces+=($(echo "$line" | awk '{print $1}'))
-    done < <(netstat -i | sed -n '3,$p')
+        interfaces+=($(echo "$line" | awk '{print $2}'))
+    done < <(iwctl device list | sed -n '5,$p')
     count=0
     for ((i=0; i<${#interfaces[@]}; i++)); do
     ((count++))
@@ -37,10 +37,7 @@ check_connection() {
 
     # Getting wifi network to connect
     iwctl station $interface scan
-    network=()
-    while IFS= read -r line; do
-        network+=($(echo "$line" | awk '{print $1}'))
-    done < <(netstat -i | sed -n '3,$p')
+    networks=($(iwctl station $interface get-networks | cut-d' ' -f6 | sed -n '5,$p' | tr -d \n' ; iwctl station $interface get-networks | cut -d' ' -f7 | sed -n '5,$p'))
     count=0
     for ((i=0; i<${#network[@]}; i++)); do
     ((count++))
@@ -57,7 +54,7 @@ check_connection() {
     wifi_pass=${dialog --title "Wifi Password" --clear --stdout --insecure --nocancel --passwordbox "SSID: ${network}" 10 20}
 
     # Connecting to the wifi
-    iwctl --passphrase=$wifi_pass station $network_interface connect $network
+    iwctl --passphrase="$wifi_pass" station $network_interface connect $network
   
   done
 }
