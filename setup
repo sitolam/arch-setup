@@ -37,7 +37,7 @@ check_connection() {
 
     # Getting wifi network to connect
     iwctl station $interface scan
-    networks=($(iwctl station $interface get-networks | cut-d' ' -f6 | sed -n '5,$p' | tr -d \n' ; iwctl station $interface get-networks | cut -d' ' -f7 | sed -n '5,$p'))
+    networks=($(iwctl station $interface get-networks | cut-d' ' -f6 | sed -n '5,$p' | tr -d '\n' ; iwctl station $interface get-networks | cut -d' ' -f7 | sed -n '5,$p'))
     count=0
     for ((i=0; i<${#network[@]}; i++)); do
     ((count++))
