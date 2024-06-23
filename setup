@@ -18,7 +18,7 @@ check_connection() {
   while ! ping -c1 google.com &>/dev/null; do
     dialog --infobox "No internet connection available" 3 50
     # Getting network interface
-    interface=($(iwctl device list | awk '{print $2}' | sed -n '5,$p'))
+    interfaces=($(iwctl device list | awk '{print $2}' | sed -n '5,$p'))
     if [[ -z "$interfaces" ]]; then
         echo "No network interfaces found."
     else
@@ -38,7 +38,7 @@ check_connection() {
         echo "No network found."
     else
         network=$(dialog --title "Network" --menu "Select a netowrk to connect:" 15 40 5 "${network_array[@]}" 2>&1 >/dev/tty)
-        echo "Selected interface: ${networks[$selection-1]}"
+        echo "Selected interface: ${networks[$network-1]}"
     fi
 
     # Getting the wifi password
