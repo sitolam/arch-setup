@@ -15,7 +15,7 @@ ENTER.\nAlternate keys may also be used: '+', '-', and TAB." 7 70
 check_connection() {
   dialog --infobox "Checking internet connection..." 3 50
   # Check if a web page is available
-  while [ ! nc -zw1 archlinux.org 443 ]; do
+  while [ curl --output /dev/null --silent --head --fail "http://google.com" ]; do
     dialog --infobox "No internet connection available"
 
     # Getting network interface
