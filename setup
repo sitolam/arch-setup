@@ -22,8 +22,7 @@ check_connection() {
     if [[ -z "$interfaces" ]]; then
         echo "No network interfaces found."
     else
-        network_interface=$(dialog --title "Network Interfaces" --menu "Select an interface:" 15 40 5 "${interfaces_array[@]}" 2>&1 >/dev/tty)
-        if 
+        network_interface=$(dialog --title "Network Interfaces" --menu "Select an interface:" 15 40 5 "${interfaces_array[@]}" 2>&1 >/dev/tty) 
         interface=$interfaces[$network_interface-1]
     fi
 
