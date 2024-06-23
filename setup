@@ -1251,7 +1251,7 @@ EOF
 
     dialog --infobox "Starting the installation of the theme" 3 50
     arch-chroot /mnt sudo -u $USER_NAME ./home/"$USER_NAME"/HyDE/Scripts/install.sh -drs
-    sleep 10
+    sleep 999999
   fi
 }
 
