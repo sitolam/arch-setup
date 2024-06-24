@@ -497,7 +497,7 @@ space available on the disk. Note that the installer sets aside an additional \
           done
         fi
 
-        dialog --title "Selected disk overview" -prgbox "This are the partitions on the selected disk: $DISK" "lsblk $DISK" 20 80
+        dialog --title "Selected disk overview" --prgbox "This are the partitions on the selected disk: $DISK" "lsblk $DISK" 20 80
         dialog --title "Confirm the Partition Layout for $DISK" --defaultno \
           --yesno "WARNING: All data on the selected disk will be lost! Make \
 sure to review your changes before continuing.\n\nDisk to partition: \
