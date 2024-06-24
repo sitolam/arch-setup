@@ -29,7 +29,7 @@ check_connection() {
         echo "No network interfaces found."
     else
         network_interface=$(dialog --title "Network Interfaces" --menu "Select an interface:" 15 40 5 "${interface_array[@]}" 2>&1 >/dev/tty) 
-        interface=$interfaces[$network_interface-1]
+        interface=${interfaces[$(($network_interface-1))]}
     fi
 
     # Getting wifi network to connect
@@ -44,7 +44,7 @@ check_connection() {
         echo "No network found."
     else
         network_interface=$(dialog --title "Network" --menu "Select a netowrk to connect:" 15 40 5 "${network_array[@]}" 2>&1 >/dev/tty)
-        network=$networks[$network_interface-1]
+        network=${networks[$((network_interface-1))]}
     fi
 
     # Getting the wifi password
