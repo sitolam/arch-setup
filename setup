@@ -14,10 +14,11 @@ ENTER.\nAlternate keys may also be used: '+', '-', and TAB." 7 70
 # Proceed with installation only if there is an internet connection
 check_connection() {
   dialog --infobox "Checking internet connection..." 3 50
-  sleep 2
+  sleep 1
   # Check if a web page is available
   while ! ping -c1 google.com &>/dev/null; do
     dialog --infobox "No internet connection available" 3 50
+    sleep 1
     # Getting network interface
     interfaces=($(iwctl device list | awk '{print $2}' | sed -n '5,$p'))
     count=0
@@ -51,7 +52,7 @@ check_connection() {
     wifi_pass=$(dialog --title "Wifi Password" --clear --stdout --insecure --nocancel --passwordbox "SSID: ${network}" 10 20)
 
     # Connecting to the wifi
-    dialog --infobox "Connect to $network..."
+    dialog --infobox "Connect to $network..." 3 50
     iwctl --passphrase="$wifi_pass" station $interface connect $network
     sleep 10
   done
