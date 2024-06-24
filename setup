@@ -52,7 +52,7 @@ check_connection() {
     wifi_pass=$(dialog --title "Wifi Password" --clear --stdout --insecure --nocancel --passwordbox "SSID: ${network}" 10 20)
 
     # Connecting to the wifi
-    dialog --infobox "Connect to $network..." 3 50
+    dialog --infobox "Connecting to $network..." 3 50
     iwctl --passphrase="$wifi_pass" station $interface connect $network
     sleep 10
   done
