@@ -499,7 +499,7 @@ space available on the disk. Note that the installer sets aside an additional \
 
         dialog --title "Selected disk overview" "This are the partitions on the selected disk: $DISK" "lsblk $DISK" 20 80
         dialog --title "Confirm the Partition Layout for $DISK" --defaultno \
-          --yesno "WARNING: All data on the selected disk will be lost! This is the data on the disk: \n $(lsblk $DISK)\n Make \
+          --yesno "WARNING: All data on the selected disk will be lost! Make \
 sure to review your changes before continuing.\n\nDisk to partition: \
 $DISK\nPartition layout: $PARTITION_LAYOUT\nFilesystem type: \
 $FILE_SYSTEM\nSwap size: $SWAP\n\nAre you sure you want to write the \
