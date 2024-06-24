@@ -418,7 +418,7 @@ cases.\n\nPartition layout:" 14 80 3 \
 "Encrypted" "Use entire disk and set up encrypted LVM" 3>&1 1>&2 2>&3)
 
     if [ $? -eq 0 ]; then
-      dialog --title "Disk overview" --prgbox "This are the partitions on the disks on your system: \n Keep the name of the wanted installation disk in mind." "lsblk" 50 80
+      dialog --title "Disk overview" --prgbox "This are the partitions on the disks on your system: \nKeep the name of the wanted installation disk in mind." "lsblk" 50 80
       DISK=$(dialog --title "Set the Installation Disk" --cancel-label "Back" \
         --menu "Select the disk for Arch Linux to be installed on. Note that \
 the disk you select will be erased, but not until you have confirmed the \
