@@ -23,7 +23,7 @@ check_connection() {
     count=0
     for ((i=0; i<${#interfaces[@]}; i++)); do
     ((count++))
-    interface_array=("${interfaces[@]}" "${count}" "${interfaces[i]}")
+    interface_array=("${interface_array[@]}" "${count}" "${interfaces[i]}")
     done
     if [[ -z "$interfaces" ]]; then
         echo "No network interfaces found."
@@ -38,7 +38,7 @@ check_connection() {
     count=0
     for ((i=0; i<${#networks[@]}; i++)); do
     ((count++))
-    network_array=("${networks[@]}" "${count}" "${networks[i]}")
+    network_array=("${network_array[@]}" "${count}" "${networks[i]}")
     done
     if [[ -z "$networks" ]]; then
         echo "No network found."
