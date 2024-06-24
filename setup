@@ -387,7 +387,7 @@ than 32 characters long." 9 80
 
   done
   dialog --title "Passwordless sudo" \
-      --yesno "Do you want to be able to use command with sudo\n
+      --yesno "Do you want to be able to use commands with sudo\n
 without typing the password?" 6 57
   if [ $? -ne 0 ]; then
     passwordlles_sudo=true
