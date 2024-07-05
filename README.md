@@ -9,6 +9,7 @@ keep the installation process as user friendly as possible.
 
 ![preview](https://media.giphy.com/media/kGQ5M2i1oVTk3I1t4o/giphy.gif)
 
+## Disclamer: need to update documentation
 ## Usage
 
 ### Prerequisites
@@ -25,7 +26,7 @@ keep the installation process as user friendly as possible.
 
      `mount -o remount,size=1G /run/archiso/cowspace`
 
-2. Clone this repository: `git clone https://github.com/jorgeluiscarrillo/arch-setup && cd arch-setup/`
+2. Clone this repository: `git clone https://github.com/sitolam/arch-setup && cd arch-setup/`
 3. Run the script: `./setup`
 
 ## Features
