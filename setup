@@ -576,16 +576,40 @@ create_basic_layout() {
   fi
 
   case "$FILE_SYSTEM" in
-    btrfs|xfs) mkfs."$FILE_SYSTEM" -f "$ROOT_PART" &> /dev/null ;;
+    btrfs) mount "$ROOT_PART" /mnt
+
+       btrfs sub cr /mnt/@
+	   	 btrfs sub cr /mnt/@tmp
+	     btrfs sub cr /mnt/@log
+		   btrfs sub cr /mnt/@pkg
+		   btrfs sub cr /mnt/@snapshots
+
+		   umount /mnt
+			 mount -o relatime,space_cache=v2,ssd,compress=zstd,subvol=@ "$ROOT_PART" /mnt
+			 if [ $? -eq 0 ]; then
+    	 	mounted=true
+  		 fi
+			 mkdir -p /mnt/{boot/efi,home,var/log,var/cache/pacman/pkg,btrfs,tmp}
+			 mount -o relatime,space_cache=v2,ssd,compress=zstd,subvol=@log "$ROOT_PART" /mnt/var/log
+			 mount -o relatime,space_cache=v2,ssd,compress=zstd,subvol=@pkg "$ROOT_PART" /mnt/var/cache/pacman/pkg/
+			 mount -o relatime,space_cache=v2,ssd,compress=zstd,subvol=@tmp "$ROOT_PART" /mnt/tmp
+
+			 BASE_PACKAGES+=('btrfs-progs') ;;
+
+
+    xfs) mkfs."$FILE_SYSTEM" -f "$ROOT_PART" &> /dev/null ;;
     *) mkfs."$FILE_SYSTEM" "$ROOT_PART" &> /dev/null ;;
   esac
-  mount "$ROOT_PART" /mnt
-  if [ $? -eq 0 ]; then
-    mounted=true
-  fi
+  if [ "$FILE_SYSTEM" != "btrfs" ]; then
+		mount "$ROOT_PART" /mnt
+		if [ $? -eq 0 ]; then
+    	mounted=true
+  	fi
+	fi
+
   if $UEFI; then
-    mkdir /mnt/boot
-    mount "$BOOT_PART" /mnt/boot
+    mkdir /mnt/boot/efi
+    mount "$BOOT_PART" /mnt/boot/efi
   fi
 }
 
