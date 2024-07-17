@@ -587,6 +587,7 @@ create_basic_layout() {
           btrfs sub cr /mnt/@snapshots &> /dev/null
 
           sleep 1
+          cd ..
           umount /mnt
           mount -o relatime,space_cache=v2,ssd,compress=zstd,subvol=@ "$ROOT_PART" /mnt
           if [ $? -eq 0 ]; then
