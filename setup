@@ -508,6 +508,7 @@ changes to the disk?" 13 60
         if [ $? -eq 0 ]; then
           check_lvm_status
           dialog --infobox "Formatting $DISK..." 3 50
+          blkdiscard "$DISK" &> /dev/null
           sgdisk --zap-all "$DISK" &> /dev/null
           wipefs -a "$DISK" &> /dev/null
           dialog --infobox "Partitioning $DISK..." 3 50
