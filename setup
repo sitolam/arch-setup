@@ -579,28 +579,25 @@ create_basic_layout() {
     btrfs) 
           mkfs."$FILE_SYSTEM" "$ROOT_PART" &> /dev/null
           mount "$ROOT_PART" /mnt
-          cd /mnt
           btrfs sub cr /mnt/@ &> /dev/null
-          btrfs sub cr /mnt/@tmp &> /dev/null
+          btrfs sub cr /mnt/@home &> /dev/null
+          btrfs sub cr /mnt/@cache &> /dev/null
           btrfs sub cr /mnt/@log &> /dev/null
-          btrfs sub cr /mnt/@pkg &> /dev/null
-          btrfs sub cr /mnt/@snapshots &> /dev/null
-	        btrfs sub cr /mnt/@home &> /dev/null
+          btrfs sub cr /mnt/@.snapshots &> /dev/null
 
-          sleep 1
-          cd 
           umount /mnt
           mount -o relatime,space_cache=v2,ssd,compress=zstd,subvol=@ "$ROOT_PART" /mnt
           if [ $? -eq 0 ]; then
             mounted=true
           fi
           mkdir -p /mnt/{home,var/log,var/cache/pacman/pkg,btrfs,tmp}
-          mount -o relatime,space_cache=v2,ssd,compress=zstd,subvol=@log "$ROOT_PART" /mnt/var/log
-          mount -o relatime,space_cache=v2,ssd,compress=zstd,subvol=@pkg "$ROOT_PART" /mnt/var/cache/pacman/pkg/
-          mount -o relatime,space_cache=v2,ssd,compress=zstd,subvol=@tmp "$ROOT_PART" /mnt/tmp
-	        mount -o relatime,space_cache=v2,ssd,compress=lzo,subvol=@home "$ROOT_PART" /mnt/home
-	        mount -o relatime,space_cache=v2,ssd,compress=lzo,subvolid=5 "$ROOT_PART" /mnt/btrfs
+          mount -o subvol=/@,defaults,noatime,compress=zstd "$ROOT_PART" /mnt
+	  mount -o subvol=/@home,defaults,noatime,compress=zstd -m "$ROOT_PART" /mnt/home
+	  mount -o subvol=/@cache,defaults,noatime,compress=zstd -m "$ROOT_PART" /mnt/var/cache
+	  mount -o subvol=/@log,defaults,noatime,compress=zstd -m "$ROOT_PART" /mnt/var/log
+	  mount -o subvol=/@.snapshots,defaults,noatime,compress=zstd -m "$ROOT_PART" /mnt/.snapshots
 
+	  genfstab -U /mnt >> /mnt/etc/fstab
           sleep 1
           BASE_PACKAGES+=('btrfs-progs') ;;
 
@@ -616,7 +613,7 @@ create_basic_layout() {
 
   if $UEFI; then
     mkdir /mnt/boot/efi
-    mount "$BOOT_PART" /mnt/boot/efi
+    mount -o defaults,noatime -m "$BOOT_PART" /mnt/boot/efi
   fi
 }
 
@@ -1073,7 +1070,7 @@ following packages will be installed:\n\n${BASE_PACKAGES[*]} \
 ${BASE_ESSENTIALS[*]} ${DESKTOP_PACKAGES[*]}\n\nInstall Arch Linux?" 0 0
     if [ $? -eq 0 ]; then
       clear
-      sudo pacman -S archlinux-keyring
+      sudo pacman -S archlinux-keyring -y
       clear
       pacstrap /mnt "${BASE_PACKAGES[@]}" "${BASE_ESSENTIALS[@]}" "${DESKTOP_PACKAGES[@]}"
       sleep 3
