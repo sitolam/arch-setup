@@ -585,7 +585,7 @@ create_basic_layout() {
           btrfs sub cr /mnt/@log &> /dev/null
           btrfs sub cr /mnt/@pkg &> /dev/null
           btrfs sub cr /mnt/@snapshots &> /dev/null
-	  btrfs sub cr /mnt/@home
+	        btrfs sub cr /mnt/@home
 
           sleep 1
           cd 
@@ -598,8 +598,8 @@ create_basic_layout() {
           mount -o relatime,space_cache=v2,ssd,compress=zstd,subvol=@log "$ROOT_PART" /mnt/var/log
           mount -o relatime,space_cache=v2,ssd,compress=zstd,subvol=@pkg "$ROOT_PART" /mnt/var/cache/pacman/pkg/
           mount -o relatime,space_cache=v2,ssd,compress=zstd,subvol=@tmp "$ROOT_PART" /mnt/tmp
-	  mount -o relatime,space_cache=v2,ssd,compress=lzo,subvol=@home /dev/sda2 /mnt/home
-	  mount -o relatime,space_cache=v2,ssd,compress=lzo,subvolid=5 /dev/sda2 /mnt/btrfs
+	        mount -o relatime,space_cache=v2,ssd,compress=lzo,subvol=@home /dev/sda2 /mnt/home
+	        mount -o relatime,space_cache=v2,ssd,compress=lzo,subvolid=5 /dev/sda2 /mnt/btrfs
 
           sleep 1
           BASE_PACKAGES+=('btrfs-progs') ;;
