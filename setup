@@ -585,7 +585,7 @@ create_basic_layout() {
           btrfs sub cr /mnt/@log &> /dev/null
           btrfs sub cr /mnt/@pkg &> /dev/null
           btrfs sub cr /mnt/@snapshots &> /dev/null
-	        btrfs sub cr /mnt/@home
+	        btrfs sub cr /mnt/@home &> /dev/null
 
           sleep 1
           cd 
