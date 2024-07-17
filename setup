@@ -579,6 +579,7 @@ create_basic_layout() {
     btrfs) 
           mkfs."$FILE_SYSTEM" "$ROOT_PART" &> /dev/null
           mount "$ROOT_PART" /mnt
+          cd /mnt
           btrfs sub cr /mnt/@ &> /dev/null
           btrfs sub cr /mnt/@tmp &> /dev/null
           btrfs sub cr /mnt/@log &> /dev/null
