@@ -1098,6 +1098,7 @@ configure_system() {
   dialog --infobox "Generating the fstab file..." 3 50
   # Generate the fstab file
   genfstab -U -p /mnt >> /mnt/etc/fstab
+  sleep 5
 
   dialog --infobox "Adjusting time zone and system clock..." 3 50
   # Set the time zone and adjust the hardware clock to the system time (UTC)
@@ -1200,7 +1201,7 @@ EOF
 
   # Install GRUB to the target disk and generate the main configuration file
   if $UEFI; then
-    arch-chroot /mnt grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB &> /dev/null
+    arch-chroot /mnt grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB &> /dev/null
   else
     arch-chroot /mnt grub-install --target=i386-pc "$DISK" &> /dev/null
   fi
