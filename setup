@@ -577,6 +577,7 @@ create_basic_layout() {
 
   case "$FILE_SYSTEM" in
     btrfs) 
+          mkfs."$FILE_SYSTEM" "$ROOT_PART" &> /dev/null
           mount "$ROOT_PART" /mnt
           btrfs sub cr /mnt/@
           btrfs sub cr /mnt/@tmp
