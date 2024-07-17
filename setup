@@ -576,25 +576,25 @@ create_basic_layout() {
   fi
 
   case "$FILE_SYSTEM" in
-    btrfs) mount "$ROOT_PART" /mnt
+    btrfs) 
+          mount "$ROOT_PART" /mnt
+          btrfs sub cr /mnt/@
+          btrfs sub cr /mnt/@tmp
+          btrfs sub cr /mnt/@log
+          btrfs sub cr /mnt/@pkg
+          btrfs sub cr /mnt/@snapshots
 
-      btrfs sub cr /mnt/@
-	   	btrfs sub cr /mnt/@tmp
-	    btrfs sub cr /mnt/@log
-		  btrfs sub cr /mnt/@pkg
-		  btrfs sub cr /mnt/@snapshots
+          umount /mnt
+          mount -o relatime,space_cache=v2,ssd,compress=zstd,subvol=@ "$ROOT_PART" /mnt
+          if [ $? -eq 0 ]; then
+            mounted=true
+          fi
+          mkdir -p /mnt/{boot/efi,home,var/log,var/cache/pacman/pkg,btrfs,tmp}
+          mount -o relatime,space_cache=v2,ssd,compress=zstd,subvol=@log "$ROOT_PART" /mnt/var/log
+          mount -o relatime,space_cache=v2,ssd,compress=zstd,subvol=@pkg "$ROOT_PART" /mnt/var/cache/pacman/pkg/
+          mount -o relatime,space_cache=v2,ssd,compress=zstd,subvol=@tmp "$ROOT_PART" /mnt/tmp
 
-		  umount /mnt
-			mount -o relatime,space_cache=v2,ssd,compress=zstd,subvol=@ "$ROOT_PART" /mnt
-			if [ $? -eq 0 ]; then
-    	  mounted=true
-  		fi
-			mkdir -p /mnt/{boot/efi,home,var/log,var/cache/pacman/pkg,btrfs,tmp}
-			mount -o relatime,space_cache=v2,ssd,compress=zstd,subvol=@log "$ROOT_PART" /mnt/var/log
-			mount -o relatime,space_cache=v2,ssd,compress=zstd,subvol=@pkg "$ROOT_PART" /mnt/var/cache/pacman/pkg/
-			mount -o relatime,space_cache=v2,ssd,compress=zstd,subvol=@tmp "$ROOT_PART" /mnt/tmp
-
-			BASE_PACKAGES+=('btrfs-progs') ;;
+          BASE_PACKAGES+=('btrfs-progs') ;;
 
 
     xfs) mkfs."$FILE_SYSTEM" -f "$ROOT_PART" &> /dev/null ;;
