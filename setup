@@ -579,11 +579,11 @@ create_basic_layout() {
     btrfs) 
           mkfs."$FILE_SYSTEM" "$ROOT_PART" &> /dev/null
           mount "$ROOT_PART" /mnt
-          btrfs sub cr /mnt/@
-          btrfs sub cr /mnt/@tmp
-          btrfs sub cr /mnt/@log
-          btrfs sub cr /mnt/@pkg
-          btrfs sub cr /mnt/@snapshots
+          btrfs sub cr /mnt/@ &> /dev/null
+          btrfs sub cr /mnt/@tmp &> /dev/null
+          btrfs sub cr /mnt/@log &> /dev/null
+          btrfs sub cr /mnt/@pkg &> /dev/null
+          btrfs sub cr /mnt/@snapshots &> /dev/null
 
           sleep 1
           umount /mnt
