@@ -594,9 +594,8 @@ create_basic_layout() {
           mount -o relatime,space_cache=v2,ssd,compress=zstd,subvol=@log "$ROOT_PART" /mnt/var/log
           mount -o relatime,space_cache=v2,ssd,compress=zstd,subvol=@pkg "$ROOT_PART" /mnt/var/cache/pacman/pkg/
           mount -o relatime,space_cache=v2,ssd,compress=zstd,subvol=@tmp "$ROOT_PART" /mnt/tmp
-
-          BASE_PACKAGES+=('btrfs-progs') ;;
           sleep 1
+          BASE_PACKAGES+=('btrfs-progs') ;;
 
     xfs) mkfs."$FILE_SYSTEM" -f "$ROOT_PART" &> /dev/null ;;
     *) mkfs."$FILE_SYSTEM" "$ROOT_PART" &> /dev/null ;;
