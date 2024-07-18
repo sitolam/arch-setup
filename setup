@@ -1083,7 +1083,7 @@ following packages will be installed:\n\n${BASE_PACKAGES[*]} \
 ${BASE_ESSENTIALS[*]} ${DESKTOP_PACKAGES[*]}\n\nInstall Arch Linux?" 0 0
     if [ $? -eq 0 ]; then
       clear
-      sudo pacman -S archlinux-keyring -y
+      sudo pacman -S archlinux-keyring --noconfirm
       clear
       pacstrap /mnt "${BASE_PACKAGES[@]}" "${BASE_ESSENTIALS[@]}" "${DESKTOP_PACKAGES[@]}"
       sleep 3
