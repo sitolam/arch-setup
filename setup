@@ -1192,10 +1192,10 @@ EOF
     
     # Temporary yay installing
     clear
-    arch-chroot /mnt sudo pacman -Sy git base-devel --noconfirm && git clone https://aur.archlinux.org/yay.git /mnt/tmp && cd /mnt/tmp/yay && makepkg -si --noconfirm && cd -
+    sudo pacman -Sy git base-devel --noconfirm && git clone https://aur.archlinux.org/yay.git /mnt/tmp && cd /mnt/tmp/yay && makepkg -si --noconfirm && cd -
     clear
 
-    arch-chroot /mnt yay -S snapper snap-pac snapper-rollback grub-btrfs --noconfirm
+    arch-chroot /mnt su "$USER_NAME" yay -S snapper snap-pac snapper-rollback grub-btrfs --noconfirm
     clear
     arch-chroot /mnt sudo pacman -Rsn yay --noconfirm 
 
@@ -1214,7 +1214,7 @@ EOF
 
     arch-chroot /mnt systemctl enable grub-btrfs.path
     arch-chroot /mnt systemctl enable snapper-timeline.timer
-    arch-chroot /mnt enable snapper-cleanup.timer
+    arch-chroot /mnt systemctl enable snapper-cleanup.timer
 
   fi  
   # Modify mkinitcpio.conf hooks if required and generate a new initramfs
