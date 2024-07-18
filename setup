@@ -1198,6 +1198,7 @@ EOF
     arch-chroot /mnt su "$USER_NAME" yay -S snapper snap-pac snapper-rollback grub-btrfs --noconfirm
     clear
     arch-chroot /mnt sudo pacman -Rsn yay --noconfirm 
+    sleep 5
 
     umount /mnt/.snapshots
     rm -rf /mnt/.snapshots
