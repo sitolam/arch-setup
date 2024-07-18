@@ -444,6 +444,16 @@ type:" 15 68 5 \
 "btrfs" "Btrfs Copy-on-Write B-tree filesystem" \
 "xfs" "SGI's journaling filesystem" 3>&1 1>&2 2>&3)
 
+        if [ "$FILE_SYSTEM" == "btrfs" ]; then
+          dialog --title "Snapper snapshots" \
+            --yesno "Would you like to enable snapper snapshots with a btrfs-grub menu?" 6 50
+          if [ $? - eq 0 ]; then
+            snapper=true
+          else
+            snapper=false
+          fi
+        fi
+
         dialog --title "Create a Swap Partition" \
           --yesno "Would you like to create an optional swap partition? If \
 you are unsure, it is recommended to create one." 6 57
@@ -1176,6 +1186,36 @@ EOF
   echo "$HOST_NAME" > /mnt/etc/hostname
   echo -e "127.0.0.1\tlocalhost\n::1\t\tlocalhost\n127.0.1.1\t$HOST_NAME.localdomain\t$HOST_NAME" >> /mnt/etc/hosts
 
+
+  if [ $snapper ]; then
+    dialog --infobox "Setting up snapper snapshots ..." 3 50
+    
+    # Temporary yay installing
+    clear
+    arch-chroot /mnt sudo pacman -Sy git base-devel --noconfirm && git clone https://aur.archlinux.org/yay.git /mnt/tmp && cd /mnt/tmp/yay && makepkg -si --noconfirm && cd -
+    clear
+
+    yay -S snapper snap-pac snapper-rollback grub-btrfs
+    clear
+
+    umount /mnt/.snapshots
+    rm -rf /mnt/.snapshots
+
+    arch-chroot /mnt sudo snapper -c root create-config /
+    sed -i 's/ALLOW_GROUPS=""/ALLOW_GROUPS="wheel"/' /mnt/etc/snapper/configs/root
+    sed -i 's/TIMELINE_LIMIT_HOURLY=.*/TIMELINE_LIMIT_HOURLY="24"'
+    sed -i 's/TIMELINE_LIMIT_DAILY=.*/TIMELINE_LIMIT_DAILY="10"'
+    sed -i 's/TIMELINE_LIMIT_WEEKLY=.*/TIMELINE_LIMIT_WEEKLY="4"'
+    sed -i 's/TIMELINE_LIMIT_MONTHLY=.*/TIMELINE_LIMIT_MONTHLY="0"'
+    sed -i 's/TIMELINE_LIMIT_QUARTERLY=.*/TIMELINE_LIMIT_QUARTERLY="0"'
+    sed -i 's/TIMELINE_LIMIT_YEARLY=.*/TIMELINE_LIMIT_YEARLY="0"'
+    sed -i 's/NUMBER_LIMIT=.*/NUMBER_LIMIT="100'
+
+    arch-chroot /mnt systemctl enable grub-btrfs.path
+    arch-chroot /mnt systemctl enable snapper-timeline.timer
+    arch-chroot /mnt enable snapper-cleanup.timer
+
+  fi  
   # Modify mkinitcpio.conf hooks if required and generate a new initramfs
   if [ "$PARTITION_LAYOUT" != "Basic" ]; then
     dialog --infobox "Recreating the initramfs image..." 3 50
