@@ -1195,21 +1195,22 @@ EOF
     arch-chroot /mnt sudo pacman -Sy git base-devel --noconfirm && git clone https://aur.archlinux.org/yay.git /mnt/tmp && cd /mnt/tmp/yay && makepkg -si --noconfirm && cd -
     clear
 
-    yay -S snapper snap-pac snapper-rollback grub-btrfs
+    arch-chroot /mnt yay -S snapper snap-pac snapper-rollback grub-btrfs --noconfirm
     clear
+    arch-chroot /mnt sudo pacman -Rsn yay --noconfirm 
 
     umount /mnt/.snapshots
     rm -rf /mnt/.snapshots
 
     arch-chroot /mnt sudo snapper -c root create-config /
     sed -i 's/ALLOW_GROUPS=""/ALLOW_GROUPS="wheel"/' /mnt/etc/snapper/configs/root
-    sed -i 's/TIMELINE_LIMIT_HOURLY=.*/TIMELINE_LIMIT_HOURLY="24"'
-    sed -i 's/TIMELINE_LIMIT_DAILY=.*/TIMELINE_LIMIT_DAILY="10"'
-    sed -i 's/TIMELINE_LIMIT_WEEKLY=.*/TIMELINE_LIMIT_WEEKLY="4"'
-    sed -i 's/TIMELINE_LIMIT_MONTHLY=.*/TIMELINE_LIMIT_MONTHLY="0"'
-    sed -i 's/TIMELINE_LIMIT_QUARTERLY=.*/TIMELINE_LIMIT_QUARTERLY="0"'
-    sed -i 's/TIMELINE_LIMIT_YEARLY=.*/TIMELINE_LIMIT_YEARLY="0"'
-    sed -i 's/NUMBER_LIMIT=.*/NUMBER_LIMIT="100'
+    sed -i 's/TIMELINE_LIMIT_HOURLY=.*/TIMELINE_LIMIT_HOURLY="24"' /mnt/etc/snapper/configs/root
+    sed -i 's/TIMELINE_LIMIT_DAILY=.*/TIMELINE_LIMIT_DAILY="10"' /mnt/etc/snapper/configs/root
+    sed -i 's/TIMELINE_LIMIT_WEEKLY=.*/TIMELINE_LIMIT_WEEKLY="4"' /mnt/etc/snapper/configs/root
+    sed -i 's/TIMELINE_LIMIT_MONTHLY=.*/TIMELINE_LIMIT_MONTHLY="0"' /mnt/etc/snapper/configs/root
+    sed -i 's/TIMELINE_LIMIT_QUARTERLY=.*/TIMELINE_LIMIT_QUARTERLY="0"' /mnt/etc/snapper/configs/root
+    sed -i 's/TIMELINE_LIMIT_YEARLY=.*/TIMELINE_LIMIT_YEARLY="0"' /mnt/etc/snapper/configs/root
+    sed -i 's/NUMBER_LIMIT=.*/NUMBER_LIMIT="100' /mnt/etc/snapper/configs/root
 
     arch-chroot /mnt systemctl enable grub-btrfs.path
     arch-chroot /mnt systemctl enable snapper-timeline.timer
