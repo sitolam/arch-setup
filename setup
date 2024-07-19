@@ -1261,6 +1261,11 @@ EOF
     sed -i 's/TIMELINE_LIMIT_YEARLY=.*/TIMELINE_LIMIT_YEARLY="0"/' /mnt/etc/snapper/configs/root
     sed -i 's/NUMBER_LIMIT=.*/NUMBER_LIMIT="100"/' /mnt/etc/snapper/configs/root
 
+    sed -i 's/subvol_snapshots =.*/subvol_snapshots = @.snapshots/' /mnt/etc/snapper-rollback.conf
+    sed -i 's/#dev = .*/dev = "$ROOT_PART"/' /mnt/etc/snapper-rollback.conf
+    echo "stop here"
+    sleep 10
+
     arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg &> /dev/null
 
 
