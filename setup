@@ -1250,7 +1250,9 @@ EOF
     umount /mnt/.snapshots
     rm -rf /mnt/.snapshots
 
-    arch-chroot /mnt su "$USER_NAME" -c "sudo snapper -c root create-config /"
+    cd /mnt
+    systemd-nspawn sudo snapper --no-dbus -c root create-config /
+    cd -
     sed -i 's/ALLOW_GROUPS=""/ALLOW_GROUPS="wheel"/' /mnt/etc/snapper/configs/root
     sed -i 's/TIMELINE_LIMIT_HOURLY=.*/TIMELINE_LIMIT_HOURLY="24"' /mnt/etc/snapper/configs/root
     sed -i 's/TIMELINE_LIMIT_DAILY=.*/TIMELINE_LIMIT_DAILY="10"' /mnt/etc/snapper/configs/root
