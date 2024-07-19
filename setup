@@ -607,6 +607,7 @@ create_basic_layout() {
           mount -o subvol=/@log,defaults,noatime,compress=zstd -m "$ROOT_PART" /mnt/var/log
           mount -o subvol=/@.snapshots,defaults,noatime,compress=zstd -m "$ROOT_PART" /mnt/.snapshots
 
+          touch /mnt/etc/fstab
 	        genfstab -U /mnt >> /mnt/etc/fstab
           sleep 1
           BASE_PACKAGES+=('btrfs-progs')
