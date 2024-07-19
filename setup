@@ -1262,9 +1262,16 @@ EOF
     sed -i 's/TIMELINE_LIMIT_YEARLY=.*/TIMELINE_LIMIT_YEARLY="0"/' /mnt/etc/snapper/configs/root
     sed -i 's/NUMBER_LIMIT=.*/NUMBER_LIMIT="100"/' /mnt/etc/snapper/configs/root
 
-    arch-chroot /mnt systemctl enable grub-btrfs.path
+    arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg &> /dev/null
+
+
+    arch-chroot /mnt systemctl enable grub-btrfsd
     arch-chroot /mnt systemctl enable snapper-timeline.timer
     arch-chroot /mnt systemctl enable snapper-cleanup.timer
+
+
+
+
 
   fi
 
