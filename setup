@@ -612,7 +612,8 @@ create_basic_layout() {
           BASE_PACKAGES+=('btrfs-progs')
           btrfs subvol set-default 256 /
           
-          sudo sed -i 's/subvolid=.*,//' /mnt/etc/fstab ;;
+          sudo sed -i 's/subvolid=.*,//' /mnt/etc/fstab 
+          sleep 2 ;;
 
     xfs) mkfs."$FILE_SYSTEM" -f "$ROOT_PART" &> /dev/null ;;
     *) mkfs."$FILE_SYSTEM" "$ROOT_PART" &> /dev/null ;;
