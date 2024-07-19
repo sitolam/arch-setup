@@ -1239,13 +1239,12 @@ EOF
     # Temporary yay installing
     clear
     pacstrap /mnt git base-devel --noconfirm && arch-chroot /mnt su "$USER_NAME" -c "git clone https://aur.archlinux.org/yay.git /home/"$USER_NAME"/yay && sudo chown -R "$USER_NAME":wheel /home/"$USER_NAME"/yay && cd /home/"$USER_NAME"/yay && makepkg -si --noconfirm"
-    sleep 5
     clear
 
-    arch-chroot /mnt su "$USER_NAME" -c "yay -S snapper snap-pac snapper-rollback grub-btrfs --noconfirm"
+    arch-chroot /mnt su "$USER_NAME" -c "yay -S snapper snap-pac snapper-rollback grub-btrfs inotify-tools --noconfirm"
     clear
     arch-chroot /mnt sudo pacman -Rsn yay --noconfirm 
-    sleep 5
+    rm -rf /mnt/home/"$USER_NAME"/yay
 
     umount /mnt/.snapshots
     rm -rf /mnt/.snapshots
