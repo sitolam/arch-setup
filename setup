@@ -1263,8 +1263,6 @@ EOF
 
     sed -i 's/subvol_snapshots =.*/subvol_snapshots = @.snapshots/' /mnt/etc/snapper-rollback.conf
     sed -i "s|#dev = .*|dev = $ROOT_PART|" /mnt/etc/snapper-rollback.conf
-    echo "stop here"
-    sleep 10
 
     arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg &> /dev/null
 
