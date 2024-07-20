@@ -591,20 +591,13 @@ create_basic_layout() {
           mkfs."$FILE_SYSTEM" "$ROOT_PART" &> /dev/null
           mount "$ROOT_PART" /mnt
           btrfs sub cr /mnt/@ &> /dev/null
-          btrfs sub cr /mnt/@home &> /dev/null
-          btrfs sub cr /mnt/@cache &> /dev/null
-          btrfs sub cr /mnt/@log &> /dev/null
           btrfs sub cr /mnt/@.snapshots &> /dev/null
 
           umount /mnt
           if [ $? -eq 0 ]; then
             mounted=true
           fi
-          mkdir -p /mnt/{home,var/log,var/cache/pacman/pkg,btrfs,tmp}
           mount -o subvol=/@,defaults,noatime,compress=zstd "$ROOT_PART" /mnt
-          mount -o subvol=/@home,defaults,noatime,compress=zstd -m "$ROOT_PART" /mnt/home
-          mount -o subvol=/@cache,defaults,noatime,compress=zstd -m "$ROOT_PART" /mnt/var/cache
-          mount -o subvol=/@log,defaults,noatime,compress=zstd -m "$ROOT_PART" /mnt/var/log
           mount -o subvol=/@.snapshots,defaults,noatime,compress=zstd -m "$ROOT_PART" /mnt/.snapshots
 
           BASE_PACKAGES+=('btrfs-progs')
@@ -1241,7 +1234,7 @@ EOF
     pacstrap /mnt git base-devel --noconfirm && arch-chroot /mnt su "$USER_NAME" -c "git clone https://aur.archlinux.org/yay.git /home/"$USER_NAME"/yay && sudo chown -R "$USER_NAME":wheel /home/"$USER_NAME"/yay && cd /home/"$USER_NAME"/yay && makepkg -si --noconfirm"
     clear
 
-    arch-chroot /mnt su "$USER_NAME" -c "yay -S snapper snap-pac snapper-rollback grub-btrfs inotify-tools --noconfirm"
+    arch-chroot /mnt su "$USER_NAME" -c "yay -S snapper snapper-rollback grub-btrfs inotify-tools --noconfirm"
     clear
     arch-chroot /mnt sudo pacman -Rsn yay --noconfirm 
     rm -rf /mnt/home/"$USER_NAME"/yay
@@ -1271,8 +1264,62 @@ EOF
     arch-chroot /mnt systemctl enable snapper-timeline.timer
     arch-chroot /mnt systemctl enable snapper-cleanup.timer
 
+    touch /mnt/etc/initcpio/hooks/switchsnaprotorw
+    cat > /mnt/etc/initcpio/hooks/switchsnaprotorw << EOF
+#!/usr/bin/ash
+
+run_hook() {
+	local current_dev=$(resolve_device "$root"); # resolve devices for blkid
+	if [[ $(blkid ${current_dev} -s TYPE -o value) = "btrfs" ]]; then
+		current_snap=$(mktemp -d); # create a random mountpoint in root of initrafms
+		mount -t btrfs -o ro,"${rootflags}" "$current_dev" "${current_snap}";
+		if [[ $(btrfs property get "${current_snap}" ro) != "ro=false" ]]; then # check if the snapshot is in read-only mode
+			snaproot=$(mktemp -d);
+			mount -t btrfs -o rw,subvolid=5 "${current_dev}" "${snaproot}";
+			rwdir=$(mktemp -d)
+			mkdir -p ${snaproot}${rwdir} # create a random folder in root fs of btrfs device
+			btrfs sub snap "${current_snap}" "${snaproot}${rwdir}/rw";
+			umount "${current_snap}";
+			umount "${snaproot}"
+			rmdir "${current_snap}";
+			rmdir "${snaproot}";
+			rootflags=",subvol=${rwdir}/rw";
+		else
+			umount "${current_snap}";
+			rmdir "${current_snap}";
+		fi
+	fi
+}
+EOF
+sleep 5
 
 
+    touch /mnt/etc/initcpio/install/switchsnaprotorw
+    cat > /mnt/etc/initcpio/install/switchsnaprotorw << EOF
+#!/bin/bash
+
+build() {
+    add_module btrfs
+    add_binary btrfs
+    add_binary btrfsck
+    add_binary blkid
+    add_runscript
+}
+
+help() {
+    cat <<HELPEOF
+This hook creates a copy of the snapshot in read only mode before boot.
+HELPEOF
+}
+
+# vim: set ft=sh ts=4 sw=4 et:
+EOF
+sleep 5
+
+  sed -i "s/HOOKS=.*/HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont block filesystems fsck switchsnaprotorw)/" /mnt/etc/mkinitcpio.conf
+  sleep 5
+  arch-chroot /mnt mkinitcpio -p linux &> /dev/null
+  sleep 5
 
 
   fi
