@@ -1307,7 +1307,7 @@ HELPEOF
 EOF
 
   sed -i "s/HOOKS=.*/HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont block filesystems fsck grub-btrfs-overlayfs)/" /mnt/etc/mkinitcpio.conf
-  arch-chroot /mnt mkinitcpio -p linux &> /dev/null
+  arch-chroot /mnt mkinitcpio -P &> /dev/null
 
 
   fi
