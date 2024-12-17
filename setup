@@ -759,7 +759,7 @@ create_alongside_layout() {
   fi
 
   # Find the largest free space
-  largest_free_space=$(parted "$DISK" unit MiB print free | awk '/Free Space/ {print $3 " " $4}' | sed 's/MiB//g' | awk '{print $1 " " $2 " " $2-$1}' | sort -k3 -n -r | head -n1)
+  largest_free_space=$(parted "$DISK" unit MiB print free | awk '/Free Space/' | tr -s ' ' | sort -t ' ' -k3,3n | sed 's/MiB//g' | tail -n1)
   start=$(echo $largest_free_space | awk '{print $1}')
   end=$(echo $largest_free_space | awk '{print $2}')
 
@@ -781,19 +781,22 @@ create_alongside_layout() {
 
   if $UEFI; then
     # Create boot partition
-    parted "$DISK" mkpart primary fat32 "${start}MiB" "$((start + 512))MiB" &> /dev/null
-    parted "$DISK" set $(parted "$DISK" print | grep -i "fat32" | awk '{print $1}') boot on &> /dev/null
-    BOOT_PART="${DISK}${PREFIX}$(parted "$DISK" print | grep -i "fat32" | awk '{print $1}')"
+    sgdisk -n 0:${start}MiB:$((start + 512))MiB -t 0:ef00 "$DISK" &> /dev/null
+    BOOT_PART_NUM=$(sgdisk -p "$DISK" | grep -i "ef00" | awk '{print $1}')
+    sgdisk --attributes="${BOOT_PART_NUM}:set:2" "$DISK" &> /dev/null
+    BOOT_PART="${DISK}${PREFIX}$(parted "$DISK" print | grep -i "fat32" | awk '{print $1}')" #TODO: weird line
     mkfs.fat -F32 "$BOOT_PART" &> /dev/null
   else
     # Create boot partition
-    parted "$DISK" mkpart primary ext4 "${start}MiB" "$((start + 512))MiB" &> /dev/null
+    sgdisk -n 0:${start}MiB:$((start + 512))MiB -t 0:8300 "$DISK" &> /dev/null
     BOOT_PART="${DISK}${PREFIX}$(parted "$DISK" print | grep -i "ext4" | awk '{print $1}')"
     mkfs.ext4 "$BOOT_PART" &> /dev/null
   fi
 
   # Create root partition
-  parted "$DISK" mkpart primary "${FILE_SYSTEM}" "$((start + 512))MiB" "$((start + 512 + root_size))MiB" &> /dev/null
+  new_start=$((start + 512))
+  new_end=$((start + 512 + root_size))
+  sgdisk -n 0:${new_start}MiB:${new_end}MiB -t 0:8300 "$DISK" &> /dev/null
   ROOT_PART="${DISK}${PREFIX}$(parted "$DISK" print | tail -n1 | awk '{print $1}')"
   mkfs."$FILE_SYSTEM" "$ROOT_PART" &> /dev/null
 
@@ -801,7 +804,7 @@ create_alongside_layout() {
     # Create swap partition
     swap_start=$((start + 512 + root_size))
     swap_end=$((start + 512 + root_size + swap_size))
-    parted "$DISK" mkpart primary linux-swap "${swap_start}MiB" "${swap_end}MiB" &> /dev/null
+    sgdisk -n 0:${swap_start}MiB:${swap_end}MiB -t 0:8200 "$DISK" &> /dev/null
     SWAP_PART="${DISK}${PREFIX}$(parted "$DISK" print | tail -n1 | awk '{print $1}')"
     mkswap "$SWAP_PART" &> /dev/null
     swapon "$SWAP_PART"
