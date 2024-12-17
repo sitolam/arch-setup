@@ -412,17 +412,18 @@ prepare_disk() {
       --menu "The installer will now automatically partition a disk for you. \
 If you have no preference or are unsure about which partition layout to \
 choose, the 'Basic' layout is the simplest and should be enough for most use \
-cases.\n\nPartition layout:" 14 80 3 \
+cases.\n\nPartition layout:" 15 80 4 \
 "Basic" "Use entire disk" \
 "LVM" "Use entire disk and set up LVM" \
-"Encrypted" "Use entire disk and set up encrypted LVM" 3>&1 1>&2 2>&3)
+"Encrypted" "Use entire disk and set up encrypted LVM" \
+"Alongside" "Install alongside existing data" 3>&1 1>&2 2>&3)
 
     if [ $? -eq 0 ]; then
-      dialog --title "Disk overview" --prgbox "This are the partitions on the disks on your system: \nKeep the name of the wanted installation disk in mind." "lsblk" 50 80
       DISK=$(dialog --title "Set the Installation Disk" --cancel-label "Back" \
         --menu "Select the disk for Arch Linux to be installed on. Note that \
-the disk you select will be erased, but not until you have confirmed the \
-changes.\n\nDisk to partition:" 16 55 5 \
+if you select 'Basic', 'LVM', or 'Encrypted' partition layouts, the disk you \
+select will be erased, but not until you have confirmed the changes.\n\nDisk \
+to partition:" 16 55 5 \
 "${block_devices[@]}" 3>&1 1>&2 2>&3)
 
       if [ $? -eq 0 ]; then
@@ -507,26 +508,37 @@ space available on the disk. Note that the installer sets aside an additional \
             fi
           done
         fi
-
+        
         dialog --title "Selected disk overview" --prgbox "This are the partitions on the selected disk: $DISK" "lsblk $DISK" 20 80
-        dialog --title "Confirm the Partition Layout for $DISK" --defaultno \
-          --yesno "WARNING: All data on the selected disk will be lost! Make \
+
+        if [ "$PARTITION_LAYOUT" = "Alongside" ]; then
+          dialog --title "Confirm the Partition Layout for $DISK" --defaultno \
+            --yesno "Arch Linux will be installed on the free space of $DISK. \
+No existing data will be deleted.\n\nAre you sure you want to proceed?" 7 60
+        else
+          dialog --title "Confirm the Partition Layout for $DISK" --defaultno \
+            --yesno "WARNING: All data on the selected disk will be lost! Make \
 sure to review your changes before continuing.\n\nDisk to partition: \
 $DISK\nPartition layout: $PARTITION_LAYOUT\nFilesystem type: \
 $FILE_SYSTEM\nSwap size: $SWAP\n\nAre you sure you want to write the \
 changes to the disk?" 13 60
+        fi
+
         if [ $? -eq 0 ]; then
-          check_lvm_status
-          dialog --infobox "Formatting $DISK..." 3 50
+          if [ "$PARTITION_LAYOUT" != "Alongside" ]; then
+            check_lvm_status
+            dialog --infobox "Formatting $DISK..." 3 50
           blkdiscard "$DISK" -f &> /dev/null
-          sgdisk --zap-all "$DISK" &> /dev/null
-          wipefs -a "$DISK" &> /dev/null
+            sgdisk --zap-all "$DISK" &> /dev/null
+            wipefs -a "$DISK" &> /dev/null
+            create_partition_label
+          fi
           dialog --infobox "Partitioning $DISK..." 3 50
-          create_partition_label
           case "$PARTITION_LAYOUT" in
             "Basic") create_basic_layout ;;
             "LVM") create_lvm_layout ;;
             "Encrypted") create_encrypted_layout ;;
+            "Alongside") create_alongside_layout ;;
           esac
           break
         else
@@ -544,7 +556,6 @@ create_partition_label() {
   # UEFI systems use GPT partitioning and BIOS/CSM systems use MBR
   if $UEFI; then
     parted -s "$DISK" mklabel gpt &> /dev/null
-
   else
     parted -s "$DISK" mklabel msdos &> /dev/null
   fi
@@ -736,6 +747,99 @@ process? If you choose yes, you will be returned to the partition menu." 7 65
   mkdir /mnt/boot
   mount "$BOOT_PART" /mnt/boot
 }
+
+# Create partitions in the free space of the selected disk
+create_alongside_layout() {
+  # Check for free space on the disk
+  free_space=$(parted "$DISK" unit MiB print free | grep "Free Space")
+  if [ -z "$free_space" ]; then
+    dialog --title "ERROR: No Free Space" \
+      --msgbox "There is no free space available on $DISK to install Arch Linux." 7 60
+    reset ; exit 1
+  fi
+
+  # Find the largest free space
+  largest_free_space=$(parted "$DISK" unit MiB print free | awk '/Free Space/ {print $3 " " $4}' | sed 's/MiB//g' | awk '{print $1 " " $2 " " $2-$1}' | sort -k3 -n -r | head -n1)
+  start=$(echo $largest_free_space | awk '{print $1}')
+  end=$(echo $largest_free_space | awk '{print $2}')
+
+  # Calculate sizes
+  root_size=$(echo "$end - $start - 512" | bc)
+  if $swap_enabled; then
+    swap_size=$(echo "$SWAP" | sed 's/[^0-9.]//g')
+    if echo "$SWAP" | grep -q "G"; then
+      swap_size=$(echo "$swap_size * 1024" | bc)
+    fi
+    root_size=$(echo "$root_size - $swap_size" | bc)
+  fi
+
+  if [ $(echo "$root_size <= 0" | bc) -eq 1 ]; then
+    dialog --title "ERROR: Not Enough Free Space" \
+      --msgbox "Not enough free space to install Arch Linux." 6 50
+    reset ; exit 1
+  fi
+
+  if $UEFI; then
+    # Create boot partition
+    parted "$DISK" mkpart primary fat32 "${start}MiB" "$((start + 512))MiB" &> /dev/null
+    parted "$DISK" set $(parted "$DISK" print | grep -i "fat32" | awk '{print $1}') boot on &> /dev/null
+    BOOT_PART="${DISK}${PREFIX}$(parted "$DISK" print | grep -i "fat32" | awk '{print $1}')"
+    mkfs.fat -F32 "$BOOT_PART" &> /dev/null
+  else
+    # Create boot partition
+    parted "$DISK" mkpart primary ext4 "${start}MiB" "$((start + 512))MiB" &> /dev/null
+    BOOT_PART="${DISK}${PREFIX}$(parted "$DISK" print | grep -i "ext4" | awk '{print $1}')"
+    mkfs.ext4 "$BOOT_PART" &> /dev/null
+  fi
+
+  # Create root partition
+  parted "$DISK" mkpart primary "${FILE_SYSTEM}" "$((start + 512))MiB" "$((start + 512 + root_size))MiB" &> /dev/null
+  ROOT_PART="${DISK}${PREFIX}$(parted "$DISK" print | tail -n1 | awk '{print $1}')"
+  mkfs."$FILE_SYSTEM" "$ROOT_PART" &> /dev/null
+
+  if $swap_enabled; then
+    # Create swap partition
+    swap_start=$((start + 512 + root_size))
+    swap_end=$((start + 512 + root_size + swap_size))
+    parted "$DISK" mkpart primary linux-swap "${swap_start}MiB" "${swap_end}MiB" &> /dev/null
+    SWAP_PART="${DISK}${PREFIX}$(parted "$DISK" print | tail -n1 | awk '{print $1}')"
+    mkswap "$SWAP_PART" &> /dev/null
+    swapon "$SWAP_PART"
+  fi
+
+    case "$FILE_SYSTEM" in
+    btrfs) 
+          mkfs."$FILE_SYSTEM" "$ROOT_PART" &> /dev/null
+          mount "$ROOT_PART" /mnt
+          btrfs sub cr /mnt/@ &> /dev/null
+          btrfs sub cr /mnt/@.snapshots &> /dev/null
+
+          umount /mnt
+          if [ $? -eq 0 ]; then
+            mounted=true
+          fi
+          mount -o subvol=/@,defaults,noatime,compress=zstd "$ROOT_PART" /mnt
+          mount -o subvol=/@.snapshots,defaults,noatime,compress=zstd -m "$ROOT_PART" /mnt/.snapshots
+
+          BASE_PACKAGES+=('btrfs-progs')
+          btrfs subvol set-default 256 / ;;
+
+    xfs) mkfs."$FILE_SYSTEM" -f "$ROOT_PART" &> /dev/null ;;
+    *) mkfs."$FILE_SYSTEM" "$ROOT_PART" &> /dev/null ;;
+  esac
+  if [ "$FILE_SYSTEM" != "btrfs" ]; then
+		mount "$ROOT_PART" /mnt
+		if [ $? -eq 0 ]; then
+    	mounted=true
+  	fi
+	fi
+
+  if $UEFI; then
+    mkdir /mnt/boot/efi
+    mount -o defaults,noatime -m "$BOOT_PART" /mnt/boot/efi
+  fi
+}
+
 
 # Use the reflector script to update the pacman mirror list
 update_mirrorlist() {
