@@ -791,7 +791,7 @@ create_alongside_layout() {
     sgdisk -n 0:${start}MiB:$((start + 512))MiB -t 0:8300 "$DISK" &> /dev/null
     BOOT_PART_NUM=$(parted "$DISK" unit MiB print | awk -v start="${start}" -v end="$((start + 512))" '$2 == start"MiB" && $3 == end"MiB" {print $1}')
     BOOT_PART="${DISK}${PREFIX}${BOOT_PART_NUM}"
-    mkfs.ext4 "$BOOT_PART" &> /dev/null
+    mkfs.ext4 -f "$BOOT_PART" &> /dev/null
   fi
 
   # Create root partition
@@ -800,7 +800,7 @@ create_alongside_layout() {
   sgdisk -n 0:$((new_start))MiB:$((new_end))MiB -t 0:8300 "$DISK"  ROOT_PART="${DISK}${PREFIX}$(parted "$DISK" print | tail -n1 | awk '{print $1}')" &> /dev/null
   ROOT_PART_NUM=$(parted "$DISK" unit MiB print | awk -v start="${new_start}" -v end="${new_end}" '$2 == start"MiB" && $3 == end"MiB" {print $1}')
   ROOT_PART="${DISK}${PREFIX}${ROOT_PART_NUM}"
-  mkfs."$FILE_SYSTEM" "$ROOT_PART" &> /dev/null
+  mkfs."$FILE_SYSTEM" -f "$ROOT_PART" &> /dev/null
 
   if $swap_enabled; then
     # Create swap partition
@@ -814,7 +814,7 @@ create_alongside_layout() {
 
     case "$FILE_SYSTEM" in
     btrfs) 
-          mkfs."$FILE_SYSTEM" "$ROOT_PART" &> /dev/null
+          mkfs."$FILE_SYSTEM" -f "$ROOT_PART" &> /dev/null
           mount "$ROOT_PART" /mnt
           btrfs sub cr /mnt/@ &> /dev/null
           btrfs sub cr /mnt/@.snapshots &> /dev/null
