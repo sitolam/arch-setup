@@ -12,7 +12,5 @@ jobs:
         - name: Repository Dispatch
           uses: peter-evans/repository-dispatch@v3
           with:
-          
-            token: ${{ secrets.TOKEN }}
             repository: sitolam/arch-setup-iso
             event-type: arch-setup-push
