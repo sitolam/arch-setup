@@ -14,3 +14,5 @@ jobs:
           with:
             repository: sitolam/arch-setup-iso
             event-type: arch-setup-push
+permissions:
+  contents: write
