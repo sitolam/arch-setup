@@ -1,0 +1,15 @@
+name: Dispatch Event
+
+on:
+  push:
+    branches:
+      - main  # or any branch you want to trigger the event
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    steps:
+        - name: Repository Dispatch
+          uses: peter-evans/repository-dispatch@v3
+          with:
+            event-type: arch-setup-push
