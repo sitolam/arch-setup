@@ -21,13 +21,20 @@ keep the installation process as user friendly as possible.
 
 ### Downloading and Running the Script
 
-1. Once you have booted into the live media, install git and dialog: `pacman -Sy git dialog`
+1. Once you have booted into the live media, sync `pacman -Syy` and install git and dialog: `pacman -Syy git dialog`
    * If you encounter `error: not enough free disk space`, then increase cowspace:
 
      `mount -o remount,size=1G /run/archiso/cowspace`
+    * If you encouter signature issues do this:
+      ```bash
+      umount /etc/pacman.d/gnupg
+      sudo rm -rf /etc/pacman.d/gnupg
+      pacman-key --init
+      pacman-key --populate
+      ```
 
-2. Clone this repository: `git clone https://github.com/sitolam/arch-setup && cd arch-setup/`
-3. Run the script: `./setup`
+3. Clone this repository: `git clone https://github.com/sitolam/arch-setup && cd arch-setup/`
+4. Run the script: `./setup`
 
 ## Features
 
@@ -40,6 +47,7 @@ of Linux experience.
   * Full disk partitioning with optional swap partition
   * Full disk partitioning with LVM
   * Full disk partitioning with LVM and root disk encryption (LVM on LUKS)
+  * Use free space with optional swap partition
 
 * Networking
   * NetworkManager: Provides detection and configuration to automatically connect to a network
@@ -68,6 +76,10 @@ Users may choose to install a complete desktop environment or a minimal window m
   * i3
   * Openbox
   * xmonad
+* HyDE (Hyprland with hyprdots from prasanthrangan)
+  * Original
+  * My fork
+  * HyDE fork (coming soon)
 
 ### Graphics Drivers and Virtual Machine Support
 
