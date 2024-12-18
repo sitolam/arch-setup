@@ -3,7 +3,7 @@ name: Dispatch Event
 on:
   push:
     branches:
-      - main  # or any branch you want to trigger the event
+      - master  # or any branch you want to trigger the event
 
 jobs:
   dispatch:
