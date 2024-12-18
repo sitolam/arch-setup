@@ -416,7 +416,7 @@ cases.\n\nPartition layout:" 15 80 4 \
 "Basic" "Use entire disk" \
 "LVM" "Use entire disk and set up LVM" \
 "Encrypted" "Use entire disk and set up encrypted LVM" \
-"Alongside" "Install alongside existing data" 3>&1 1>&2 2>&3)
+"Free Space" "Install alongside existing data" 3>&1 1>&2 2>&3)
 
     if [ $? -eq 0 ]; then
       DISK=$(dialog --title "Set the Installation Disk" --cancel-label "Back" \
@@ -511,7 +511,7 @@ space available on the disk. Note that the installer sets aside an additional \
         
         dialog --title "Selected disk overview" --prgbox "This are the partitions on the selected disk: $DISK" "lsblk $DISK" 20 80
 
-        if [ "$PARTITION_LAYOUT" = "Alongside" ]; then
+        if [ "$PARTITION_LAYOUT" = "Free Space" ]; then
           dialog --title "Confirm the Partition Layout for $DISK" --defaultno \
             --yesno "Arch Linux will be installed on the free space of $DISK. \
 No existing data will be deleted.\n\nAre you sure you want to proceed?" 7 60
@@ -525,7 +525,7 @@ changes to the disk?" 13 60
         fi
 
         if [ $? -eq 0 ]; then
-          if [ "$PARTITION_LAYOUT" != "Alongside" ]; then
+          if [ "$PARTITION_LAYOUT" != "Free Space" ]; then
             check_lvm_status
             dialog --infobox "Formatting $DISK..." 3 50
           blkdiscard "$DISK" -f &> /dev/null
@@ -538,7 +538,7 @@ changes to the disk?" 13 60
             "Basic") create_basic_layout ;;
             "LVM") create_lvm_layout ;;
             "Encrypted") create_encrypted_layout ;;
-            "Alongside") create_alongside_layout ;;
+            "Free Space") create_alongside_layout ;;
           esac
           break
         else
