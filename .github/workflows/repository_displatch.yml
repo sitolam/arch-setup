@@ -13,3 +13,4 @@ jobs:
           uses: peter-evans/repository-dispatch@v3
           with:
             event-type: arch-setup-push
+            token: ${{ secrets.TOKEN }}
