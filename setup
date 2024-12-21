@@ -1328,9 +1328,9 @@ EOF
   arch-chroot /mnt chpasswd <<<"root:$root_passwd"
   # User is added to the 'wheel' group and is granted root privileges with sudo
   if [ -z "$FULL_NAME" ]; then
-    arch-chroot /mnt useradd -m -g users -G wheel,libvert -s /bin/bash "$USER_NAME"
+    arch-chroot /mnt useradd -m -g users -G wheel -s /bin/bash "$USER_NAME"
   else
-    arch-chroot /mnt useradd -m -g users -G wheel,libvert -c "$FULL_NAME" -s /bin/bash "$USER_NAME"
+    arch-chroot /mnt useradd -m -g users -G wheel -c "$FULL_NAME" -s /bin/bash "$USER_NAME"
   fi
   arch-chroot /mnt chpasswd <<<"$USER_NAME:$user_passwd"
   sed -i 's/# %wheel ALL=(ALL:ALL) NOPASSWD: ALL/%wheel ALL=(ALL) NOPASSWD: ALL/g' /mnt/etc/sudoers
