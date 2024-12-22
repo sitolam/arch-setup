@@ -1489,6 +1489,7 @@ EOF
 
 # System power menu
 reboot_system() {
+  read -n 1 -p 'Press any key to continue...'
   if $installed; then
     while true; do
       choice=$(dialog --title "Reboot System" --nocancel \
