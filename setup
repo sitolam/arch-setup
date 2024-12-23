@@ -509,7 +509,7 @@ space available on the disk. Note that the installer sets aside an additional \
           done
         fi
         
-        dialog --title "Selected disk overview" --prgbox "This are the partitions on the selected disk: $DISK" "lsblk $DISK" 20 80
+        dialog --title "Selected disk overview" --prgbox "This are the partitions on the selected disk, you can cancel any time by pressing Control + C: $DISK" "lsblk $DISK" 20 80
 
         if [ "$PARTITION_LAYOUT" = "Free Space" ]; then
           dialog --title "Confirm the Partition Layout for $DISK" --defaultno \
