@@ -759,8 +759,8 @@ create_alongside_layout() {
   fi
 
   # Find the largest free space
-  largest_free_space=$(parted "$DISK" unit MiB print free | awk '/Free Space/' | tr -s ' ' | sort -t ' ' -k3,3n | sed 's/MiB//g' | tail -n1)
-  start=$(echo $largest_free_space | awk '{print $1}')
+  largest_free_space=$(parted "$DISK" unit MiB print free | awk '/Free Space/' | tr -s ' ' | sed 's/^ //' | sort -t ' ' -k3,3n | sed 's/MiB//g' | tail -n1)
+  start=$(echo $largest_free_space | awk '{print $1}' | awk '{print int($1+0.999)}')
   end=$(echo $largest_free_space | awk '{print $2}')
 
   # Calculate sizes
